@@ -3,6 +3,7 @@ import os.path
 from PIL import Image, ImageOps
 from processing_list import *
 
+background_color = "#B5C0D0"
 # Kolom Area No 1: Area membuka folder dan memilih gambar
 file_list_column = [
     [
@@ -44,7 +45,13 @@ list_processing = [
         sg.Button("Image Negative", size=(20, 1), key="ImgNegative"),
     ],
     [
-        sg.Button("Image Rotate", size=(20, 1), key="ImgRotate"),
+        sg.Button("Image Rotate 90", size=(20, 1), key="ImgRotate90"),
+    ],
+    [
+        sg.Button("Image Rotate 180", size=(20, 1), key="ImgRotate180"),
+    ],
+    [
+        sg.Button("Image Rotate 270", size=(20, 1), key="ImgRotate270"),
     ],
     [
         sg.Text("Atur Brightness: "),
@@ -95,7 +102,7 @@ layout = [
     ]
 ]
 
-window = sg.Window("Mini Image Editor", layout)
+window = sg.Window("Mini Image Editor", layout, background_color=background_color)
 
 
 # Run the Event Loop
@@ -174,6 +181,16 @@ while True:
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
+            window["ImgProcessingType"].update("Image Rotate")
+            img_output = ImgRotate(img_input, coldepth, 180, "180")
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            window["ImgProcessingType"].update("Image Rotate")
+            img_output = ImgRotate(img_input, coldepth, 270, "CCW")
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
             # Update informasi ukuran gambar input
             img_width, img_height = img_input.size
             window["ImgSize"].update(
@@ -220,10 +237,28 @@ while True:
         except:
             pass
     # memanggil fungsi image rotate
-    elif event == "ImgRotate":
+    elif event == "ImgRotate90":
         try:
             window["ImgProcessingType"].update("Image Rotate")
             img_output = ImgRotate(img_input, coldepth, 90, "C")
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+        except:
+            pass
+
+    elif event == "ImgRotate180":
+        try:
+            window["ImgProcessingType"].update("Image Rotate")
+            img_output = ImgRotate(img_input, coldepth, 180, "180")
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+        except:
+            pass
+
+    elif event == "ImgRotate270":
+        try:
+            window["ImgProcessingType"].update("Image Rotate")
+            img_output = ImgRotate(img_input, coldepth, 270, "CCW")
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
@@ -244,7 +279,7 @@ while True:
 # menambahkan informasi untuk image output udah lese
 # grafik logaritma di excel udah lese
 # input 2 citra untuk blending
-# membuat brightness dan menurunkan brightness ajust + - slider, menggunakan citra negatif
+# membuat brightness dan menurunkan brightness ajust + - slider, menggunakan citra negatif udah lese
 
 
 window.close()

@@ -26,7 +26,7 @@ def ImgNegative(img_input, coldepth):
     return img_output
 
 
-# membuat gambar rotate
+# membuat fungsi rotate
 def ImgRotate(img_input, coldepth, deg, direction):
     # solusi 1
     # img_output=img_input.rotate(deg)
@@ -41,7 +41,11 @@ def ImgRotate(img_input, coldepth, deg, direction):
         for j in range(img_output.size[1]):
             if direction == "C":
                 r, g, b = img_input.getpixel((j, img_output.size[0] - i - 1))
-            else:
+            elif direction == "180":
+                r, g, b = img_input.getpixel(
+                    (img_input.size[0] - i - 1, img_input.size[1] - j - 1)
+                )
+            elif direction == "CCW":
                 r, g, b = img_input.getpixel((img_input.size[1] - j - 1, i))
             pixels[i, j] = (r, g, b)
 
