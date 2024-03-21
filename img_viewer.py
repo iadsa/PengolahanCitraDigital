@@ -3,7 +3,7 @@ import os.path
 from PIL import Image, ImageOps
 from processing_list import *
 
-# Kolom Area No 1: Area open folder and select image
+# Kolom Area No 1: Area membuka folder dan memilih gambar
 file_list_column = [
     [
         sg.Text("Open Image Folder :"),
@@ -18,7 +18,7 @@ file_list_column = [
     [sg.Listbox(values=[], enable_events=True, size=(18, 10), key="ImgList")],
 ]
 
-# Kolom Area No 2: Area viewer image input
+# Kolom Area No 2: menampilkan input gambar
 image_viewer_column = [
     [sg.Text("Image Input :")],
     [sg.Text(size=(40, 1), key="FilepathImgInput")],
@@ -26,7 +26,7 @@ image_viewer_column = [
 ]
 
 
-# Kolom Area No 3: Area Image info dan Tombol list of processing
+# Kolom Area No 3: informasi gambar untuk kolom input
 list_processing = [
     [
         sg.Text("Image Information:"),
@@ -47,10 +47,27 @@ list_processing = [
         sg.Button("Image Rotate", size=(20, 1), key="ImgRotate"),
     ],
     [
-        sg.Button("Image Brightness", size=(20, 1), key="ImgBrightness"),
+        sg.Text("Atur Brightness: "),
+        sg.Slider(
+            range=(-255, 255),
+            default_value=0,
+            size=(20, 15),
+            orientation="horizontal",
+            key="BrightnessSlider",
+            enable_events=True,
+        ),
     ],
 ]
 
+
+# Kolom Area No 4: Area viewer image output
+image_viewer_column2 = [
+    [sg.Text("Image Processing output:")],
+    [sg.Text(size=(40, 1), key="ImgProcessingType")],
+    [sg.Image(key="ImgOutputViewer")],
+]
+
+# Kolom area  2 informasi untuk output gambar
 list_processing_output = [
     [
         sg.Text("Image Information Output:"),
@@ -63,16 +80,7 @@ list_processing_output = [
     ],
 ]
 
-
-# Kolom Area No 4: Area viewer image output
-image_viewer_column2 = [
-    [sg.Text("Image Processing output:")],
-    [sg.Text(size=(40, 1), key="ImgProcessingType")],
-    [sg.Image(key="ImgOutputViewer")],
-]
-
-
-# Gabung Full layout
+# Gabung Full layout tata letak setiap colom
 layout = [
     [
         sg.Column(file_list_column),
@@ -161,8 +169,10 @@ while True:
             img_input = Image.open(filename)
             img_output = Image.open(filename)
 
-            angle = 90
-            img_output = img_input.rotate(angle, expand=True)
+            window["ImgProcessingType"].update("Image Rotate")
+            img_output = ImgRotate(img_input, coldepth, 90, "C")
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
 
             # Update informasi ukuran gambar input
             img_width, img_height = img_input.size
@@ -218,20 +228,21 @@ while True:
             window["ImgOutputViewer"].update(filename=filename_out)
         except:
             pass
-
-    elif event == "ImgBrightness":
+    # memanggil fungsi brightness
+    elif event == "BrightnessSlider":
         try:
-            window["ImgProcessingType"].update("Image Brightness Adjustment")
-            brightness_factor = 1.5
-            img_output = ImgBrightness(img_input, brightness_factor)
+            window["ImgProcessingType"].update("Brightness diatur")
+            tingkat_brightness = values["BrightnessSlider"]
+            img_output = Brightness(img_input, coldepth, tingkat_brightness)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
+
         except:
             pass
 
 
-# menambahkan informasi untuk image output
-# grafik logaritma di excel
+# menambahkan informasi untuk image output udah lese
+# grafik logaritma di excel udah lese
 # input 2 citra untuk blending
 # membuat brightness dan menurunkan brightness ajust + - slider, menggunakan citra negatif
 

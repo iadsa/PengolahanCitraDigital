@@ -54,22 +54,27 @@ def ImgRotate(img_input, coldepth, deg, direction):
     return img_output
 
 
-# brightness
-def ImgBrightness(img_input, brightness_factor):
-    width, height = img_input.size
-    img_output = img_input.copy()
+# membuat fungsi Brightness
+def Brightness(img_input, coldepth, tingkat_brightness):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
 
-    pixels = img_output.load()
+    img_output = Image.new("RGB", img_input.size)
+    pixels_output = img_output.load()
 
-    for i in range(width):
-        for j in range(height):
+    for i in range(img_output.size[0]):
+        for j in range(img_output.size[1]):
+            r, g, b = img_input.getpixel((i, j))
+            tingkat_r = max(0, min(255, r + tingkat_brightness * (r / 255)))
+            tingkat_g = max(0, min(255, g + tingkat_brightness * (g / 255)))
+            tingkat_b = max(0, min(255, b + tingkat_brightness * (b / 255)))
+            pixels_output[i, j] = (int(tingkat_r), int(tingkat_g), int(tingkat_b))
 
-            r, g, b = pixels[i, j]
-
-            r = min(255, max(0, int(r * brightness_factor)))
-            g = min(255, max(0, int(g * brightness_factor)))
-            b = min(255, max(0, int(b * brightness_factor)))
-
-            pixels[i, j] = (r, g, b)
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
 
     return img_output
