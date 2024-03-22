@@ -97,14 +97,14 @@ list_processing_output = [
 
 file_list_column_blending = [
     [
-        sg.Text("Open Blending Image Folder :"),
+        sg.Text("Buka Folder :"),
     ],
     [
         sg.In(size=(20, 1), enable_events=True, key="ImgFolderBlending"),
-        sg.FolderBrowse(),
+        sg.FolderBrowse("pilih"),
     ],
     [
-        sg.Text("Choose an image from list for blending :"),
+        sg.Text("Pilih Gambar yang akan diblending :"),
     ],
     [sg.Listbox(values=[], enable_events=True, size=(18, 10), key="ImgListBlending")],
 ]
