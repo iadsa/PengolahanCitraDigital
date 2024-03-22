@@ -3,7 +3,8 @@ import os.path
 from PIL import Image, ImageOps
 from processing_list import *
 
-background_color = "#B5C0D0"
+background_color = "#F5EEE6"
+
 # Kolom Area No 1: Area membuka folder dan memilih gambar
 file_list_column = [
     [
@@ -64,6 +65,13 @@ list_processing = [
             enable_events=True,
         ),
     ],
+    [
+        sg.Button(
+            "Image Blending",
+            size=(20, 1),
+            key="ImgBlending",
+        )
+    ],
 ]
 
 
@@ -87,6 +95,20 @@ list_processing_output = [
     ],
 ]
 
+file_list_column_blending = [
+    [
+        sg.Text("Open Blending Image Folder :"),
+    ],
+    [
+        sg.In(size=(20, 1), enable_events=True, key="ImgFolderBlending"),
+        sg.FolderBrowse(),
+    ],
+    [
+        sg.Text("Choose an image from list for blending :"),
+    ],
+    [sg.Listbox(values=[], enable_events=True, size=(18, 10), key="ImgListBlending")],
+]
+
 # Gabung Full layout tata letak setiap colom
 layout = [
     [
@@ -99,7 +121,10 @@ layout = [
         sg.Column(list_processing),
         sg.VSeperator(),
         sg.Column(image_viewer_column),  # tukar posisi
-    ]
+    ],
+    [
+        sg.Column(file_list_column_blending),
+    ],
 ]
 
 window = sg.Window("Mini Image Editor", layout, background_color=background_color)
@@ -129,6 +154,23 @@ while True:
             and f.lower().endswith((".png", ".gif"))
         ]
         window["ImgList"].update(fnames)
+
+    elif event == "ImgFolderBlending":
+        folder_blending = values["ImgFolderBlending"]
+        try:
+            # Get list of files in folder
+            file_list = os.listdir(folder_blending)
+        except Exception as e:
+            print("Error:", e)
+            file_list = []
+
+        fnamesblending = [
+            fb
+            for fb in file_list
+            if os.path.isfile(os.path.join(folder_blending, fb))
+            and fb.lower().endswith((".png", ".gif"))
+        ]
+        window["ImgListBlending"].update(fnamesblending)
 
     elif event == "ImgList":  # A file was chosen from the listbox
         try:
@@ -166,7 +208,22 @@ while True:
         except:
             pass
 
-    elif event == "ImgRotate":  # A file was chosen from the listbox
+    # memanggil fungsi image negatif
+    elif event == "ImgNegative":
+        try:
+            window["ImgProcessingType"].update("Image Negative")
+            img_output = ImgNegative(img_input, coldepth)
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+        except:
+            pass
+
+    # memanggil fungsi image rotate dan ukuran sesuai rotate
+    elif event in [
+        "ImgRotate90",
+        "ImgRotate180",
+        "ImgRotate270",
+    ]:  # A file was chosen from the listbox
         try:
             filename = os.path.join(values["ImgFolder"], values["ImgList"][0])
             window["FilepathImgInput"].update(filename)
@@ -175,27 +232,6 @@ while True:
             window["ImgOutputViewer"].update(filename=filename)
             img_input = Image.open(filename)
             img_output = Image.open(filename)
-
-            window["ImgProcessingType"].update("Image Rotate")
-            img_output = ImgRotate(img_input, coldepth, 90, "C")
-            img_output.save(filename_out)
-            window["ImgOutputViewer"].update(filename=filename_out)
-
-            window["ImgProcessingType"].update("Image Rotate")
-            img_output = ImgRotate(img_input, coldepth, 180, "180")
-            img_output.save(filename_out)
-            window["ImgOutputViewer"].update(filename=filename_out)
-
-            window["ImgProcessingType"].update("Image Rotate")
-            img_output = ImgRotate(img_input, coldepth, 270, "CCW")
-            img_output.save(filename_out)
-            window["ImgOutputViewer"].update(filename=filename_out)
-
-            # Update informasi ukuran gambar input
-            img_width, img_height = img_input.size
-            window["ImgSize"].update(
-                "Image Size : " + str(img_width) + " x " + str(img_height)
-            )
 
             # Update informasi kedalaman warna gambar input
             mode_to_coldepth = {
@@ -211,58 +247,46 @@ while True:
                 "I": 32,
                 "F": 32,
             }
-            coldepth = mode_to_coldepth[img_input.mode]
-            window["ImgColorDepth"].update("Color Depth : " + str(coldepth))
 
-            # Update informasi ukuran gambar output
-            img_width, img_height = img_output.size
-            window["ImgSize_output"].update(
+            rotation_angle = (
+                90
+                if event == "ImgRotate90"
+                else (180 if event == "ImgRotate180" else 270)
+            )
+            rotation_direction = (
+                "C"
+                if event == "ImgRotate90"
+                else ("180" if event == "ImgRotate180" else "CCW")
+            )
+
+            window["ImgProcessingType"].update("Image Rotate")
+            img_output = ImgRotate(
+                img_input, coldepth, rotation_angle, rotation_direction
+            )
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            # Update informasi ukuran gambar input
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
                 "Image Size : " + str(img_width) + " x " + str(img_height)
             )
 
+            # Update informasi ukuran gambar output
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
             # Update informasi kedalaman warna gambar output
-            coldepth = mode_to_coldepth[img_output.mode]
-            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
 
         except:
             pass
 
-    # memanggil fungsi image negatif
-    elif event == "ImgNegative":
-        try:
-            window["ImgProcessingType"].update("Image Negative")
-            img_output = ImgNegative(img_input, coldepth)
-            img_output.save(filename_out)
-            window["ImgOutputViewer"].update(filename=filename_out)
-        except:
-            pass
-    # memanggil fungsi image rotate
-    elif event == "ImgRotate90":
-        try:
-            window["ImgProcessingType"].update("Image Rotate")
-            img_output = ImgRotate(img_input, coldepth, 90, "C")
-            img_output.save(filename_out)
-            window["ImgOutputViewer"].update(filename=filename_out)
-        except:
-            pass
-
-    elif event == "ImgRotate180":
-        try:
-            window["ImgProcessingType"].update("Image Rotate")
-            img_output = ImgRotate(img_input, coldepth, 180, "180")
-            img_output.save(filename_out)
-            window["ImgOutputViewer"].update(filename=filename_out)
-        except:
-            pass
-
-    elif event == "ImgRotate270":
-        try:
-            window["ImgProcessingType"].update("Image Rotate")
-            img_output = ImgRotate(img_input, coldepth, 270, "CCW")
-            img_output.save(filename_out)
-            window["ImgOutputViewer"].update(filename=filename_out)
-        except:
-            pass
     # memanggil fungsi brightness
     elif event == "BrightnessSlider":
         try:
@@ -275,11 +299,40 @@ while True:
         except:
             pass
 
+    # membuat folder untuk blending
 
-# menambahkan informasi untuk image output udah lese
-# grafik logaritma di excel udah lese
-# input 2 citra untuk blending
-# membuat brightness dan menurunkan brightness ajust + - slider, menggunakan citra negatif udah lese
+    elif event == "ImgFolderBlending":
+        folder_blending = values["ImgFolderBlending"]
+        try:
+            file_list = os.listdir(folder_blending)
+        except Exception as e:
+            print("Error:", e)
+            file_list = []
 
+        fnamesblending = [
+            fb
+            for fb in file_list
+            if os.path.isfile(os.path.join(folder_blending, fb))
+            and fb.lower().endswith((".png", ".gif"))
+        ]
+        window["ImgListBlending"].update(fnamesblending)
 
-window.close()
+    # memanggil fungsi blending
+    elif event == "ImgBlending":
+        try:
+            if values["ImgListBlending"]:  #
+                filename_blending = os.path.join(
+                    values["ImgFolderBlending"], values["ImgListBlending"][0]
+                )
+                input_image2 = Image.open(filename_blending)
+
+                window["ImgProcessingType"].update("Image Blending")
+                output_image = blending(
+                    img_input, coldepth, input_image2, coldepth, 0.5, 0.5
+                )  # nilai alpha menjadi 0.5
+                output_image.save(filename_out)
+                window["ImgOutputViewer"].update(filename=filename_out)
+            else:
+                print("tidak ada file yang diblending.")
+        except:
+            pass

@@ -59,6 +59,8 @@ def ImgRotate(img_input, coldepth, deg, direction):
 
 
 # membuat fungsi Brightness
+
+
 def Brightness(img_input, coldepth, tingkat_brightness):
     if coldepth != 24:
         img_input = img_input.convert("RGB")
@@ -82,3 +84,37 @@ def Brightness(img_input, coldepth, tingkat_brightness):
         img_output = img_output.convert("RGB")
 
     return img_output
+
+
+# membuat fungsi Blending
+
+
+def blending(input_image, color_depth, input_image2, color_depth2, alpha, alpha2):
+    if color_depth != 24:
+        input_image = input_image.convert("RGB")
+    elif color_depth2 != 24:
+        input_image2 = input_image2.convert("RGB")
+
+    # Resize input_image2 to match the size of input_image
+    input_image2 = input_image2.resize(input_image.size)
+
+    output_image = Image.new("RGB", input_image.size)
+    output_pixels = output_image.load()
+
+    for i in range(output_image.size[0]):
+        for j in range(output_image.size[1]):
+            color1 = input_image.getpixel((i, j))
+            color2 = input_image2.getpixel((i, j))
+            r = int(color1[0] * alpha) + int(color2[0] * alpha2)
+            g = int(color1[1] * alpha) + int(color2[1] * alpha2)
+            b = int(color1[2] * alpha) + int(color2[2] * alpha2)
+            output_pixels[i, j] = (r, g, b)
+
+    if color_depth == 1:
+        output_image = output_image.convert("1")
+    elif color_depth == 8:
+        output_image = output_image.convert("L")
+    else:
+        output_image = output_image.convert("RGB")
+
+    return output_image
