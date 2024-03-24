@@ -8,22 +8,36 @@ background_color = "#F5EEE6"
 # Kolom Area No 1: Area membuka folder dan memilih gambar
 file_list_column = [
     [
-        sg.Text("Open Image Folder :"),
+        sg.Text("Buka Folder :"),
     ],
     [
-        sg.In(size=(20, 1), enable_events=True, key="ImgFolder"),
-        sg.FolderBrowse(),
+        sg.In(size=(10, 1), enable_events=True, key="ImgFolder"),
+        sg.FolderBrowse("pilih"),
     ],
     [
-        sg.Text("Choose an image from list :"),
+        sg.Text("Pilih Gambar:"),
     ],
-    [sg.Listbox(values=[], enable_events=True, size=(18, 10), key="ImgList")],
+    [sg.Listbox(values=[], enable_events=True, size=(10, 5), key="ImgList")],
+]
+
+file_list_column_blending = [
+    [
+        sg.Text("Buka Folder :"),
+    ],
+    [
+        sg.In(size=(10, 1), enable_events=True, key="ImgFolderBlending"),
+        sg.FolderBrowse("pilih"),
+    ],
+    [
+        sg.Text("Pilih Gambar Blending:"),
+    ],
+    [sg.Listbox(values=[], enable_events=True, size=(10, 5), key="ImgListBlending")],
 ]
 
 # Kolom Area No 2: menampilkan input gambar
 image_viewer_column = [
     [sg.Text("Image Input :")],
-    [sg.Text(size=(40, 1), key="FilepathImgInput")],
+    [sg.Text(size=(15, 1), key="FilepathImgInput")],
     [sg.Image(key="ImgInputViewer")],
 ]
 
@@ -43,23 +57,23 @@ list_processing = [
         sg.Text("List of Processing:"),
     ],
     [
-        sg.Button("Image Negative", size=(20, 1), key="ImgNegative"),
+        sg.Button("Image Negative", size=(15, 1), key="ImgNegative"),
     ],
     [
-        sg.Button("Image Rotate 90", size=(20, 1), key="ImgRotate90"),
+        sg.Button("Image Rotate 90", size=(15, 1), key="ImgRotate90"),
     ],
     [
-        sg.Button("Image Rotate 180", size=(20, 1), key="ImgRotate180"),
+        sg.Button("Image Rotate 180", size=(15, 1), key="ImgRotate180"),
     ],
     [
-        sg.Button("Image Rotate 270", size=(20, 1), key="ImgRotate270"),
+        sg.Button("Image Rotate 270", size=(15, 1), key="ImgRotate270"),
     ],
     [
         sg.Text("Atur Brightness: "),
         sg.Slider(
             range=(-255, 255),
             default_value=0,
-            size=(20, 15),
+            size=(15, 10),
             orientation="horizontal",
             key="BrightnessSlider",
             enable_events=True,
@@ -68,7 +82,7 @@ list_processing = [
     [
         sg.Button(
             "Image Blending",
-            size=(20, 1),
+            size=(15, 1),
             key="ImgBlending",
         )
     ],
@@ -78,12 +92,8 @@ list_processing = [
 # Kolom Area No 4: Area viewer image output
 image_viewer_column2 = [
     [sg.Text("Image Processing output:")],
-    [sg.Text(size=(40, 1), key="ImgProcessingType")],
+    [sg.Text(size=(15, 1), key="ImgProcessingType")],
     [sg.Image(key="ImgOutputViewer")],
-]
-
-# Kolom area  2 informasi untuk output gambar
-list_processing_output = [
     [
         sg.Text("Image Information Output:"),
     ],
@@ -95,35 +105,18 @@ list_processing_output = [
     ],
 ]
 
-file_list_column_blending = [
-    [
-        sg.Text("Buka Folder :"),
-    ],
-    [
-        sg.In(size=(20, 1), enable_events=True, key="ImgFolderBlending"),
-        sg.FolderBrowse("pilih"),
-    ],
-    [
-        sg.Text("Pilih Gambar yang akan diblending :"),
-    ],
-    [sg.Listbox(values=[], enable_events=True, size=(18, 10), key="ImgListBlending")],
-]
-
 # Gabung Full layout tata letak setiap colom
 layout = [
     [
         sg.Column(file_list_column),
+        sg.Column(file_list_column_blending),
         sg.VSeperator(),
-        sg.Column(list_processing_output),
-        sg.VSeperator(),
+        # sg.Column(list_processing_output),
         sg.Column(image_viewer_column2),  # tukar posisi
         sg.VSeperator(),
         sg.Column(list_processing),
         sg.VSeperator(),
         sg.Column(image_viewer_column),  # tukar posisi
-    ],
-    [
-        sg.Column(file_list_column_blending),
     ],
 ]
 
@@ -211,10 +204,55 @@ while True:
     # memanggil fungsi image negatif
     elif event == "ImgNegative":
         try:
+            filename = os.path.join(values["ImgFolder"], values["ImgList"][0])
+            window["FilepathImgInput"].update(filename)
+            window["ImgInputViewer"].update(filename=filename)
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            # Update informasi kedalaman warna gambar input
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
             window["ImgProcessingType"].update("Image Negative")
             img_output = ImgNegative(img_input, coldepth)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            # Update informasi ukuran gambar input
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            # Update informasi ukuran gambar output
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            # Update informasi kedalaman warna gambar output
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
+
         except:
             pass
 
@@ -263,7 +301,9 @@ while True:
             img_output = ImgRotate(
                 img_input, coldepth, rotation_angle, rotation_direction
             )
+            window["ImgOutputViewer"].update(filename=filename_out)
             img_output.save(filename_out)
+
             window["ImgOutputViewer"].update(filename=filename_out)
 
             # Update informasi ukuran gambar input
@@ -290,11 +330,55 @@ while True:
     # memanggil fungsi brightness
     elif event == "BrightnessSlider":
         try:
+            filename = os.path.join(values["ImgFolder"], values["ImgList"][0])
+            window["FilepathImgInput"].update(filename)
+            window["ImgInputViewer"].update(filename=filename)
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            # Update informasi kedalaman warna gambar input
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
             window["ImgProcessingType"].update("Brightness diatur")
             tingkat_brightness = values["BrightnessSlider"]
             img_output = Brightness(img_input, coldepth, tingkat_brightness)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            # Update informasi ukuran gambar input
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            # Update informasi ukuran gambar output
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            # Update informasi kedalaman warna gambar output
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
 
         except:
             pass
@@ -317,10 +401,10 @@ while True:
         ]
         window["ImgListBlending"].update(fnamesblending)
 
-    # memanggil fungsi blending
     elif event == "ImgBlending":
         try:
-            if values["ImgListBlending"]:  #
+
+            if values["ImgListBlending"]:
                 filename_blending = os.path.join(
                     values["ImgFolderBlending"], values["ImgListBlending"][0]
                 )
@@ -334,5 +418,6 @@ while True:
                 window["ImgOutputViewer"].update(filename=filename_out)
             else:
                 print("tidak ada file yang diblending.")
+
         except:
             pass
