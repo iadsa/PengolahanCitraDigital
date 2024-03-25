@@ -169,7 +169,9 @@ while True:
         try:
             filename = os.path.join(values["ImgFolder"], values["ImgList"][0])
             window["FilepathImgInput"].update(filename)
+
             window["ImgInputViewer"].update(filename=filename)
+
             window["ImgProcessingType"].update(filename)
             window["ImgOutputViewer"].update(filename=filename)
             img_input = Image.open(filename)
@@ -204,9 +206,10 @@ while True:
     # memanggil fungsi image negatif
     elif event == "ImgNegative":
         try:
-            filename = os.path.join(values["ImgFolder"], values["ImgList"][0])
             window["FilepathImgInput"].update(filename)
+
             window["ImgInputViewer"].update(filename=filename)
+
             window["ImgProcessingType"].update(filename)
             window["ImgOutputViewer"].update(filename=filename)
             img_input = Image.open(filename)
@@ -263,9 +266,10 @@ while True:
         "ImgRotate270",
     ]:  # A file was chosen from the listbox
         try:
-            filename = os.path.join(values["ImgFolder"], values["ImgList"][0])
             window["FilepathImgInput"].update(filename)
+
             window["ImgInputViewer"].update(filename=filename)
+
             window["ImgProcessingType"].update(filename)
             window["ImgOutputViewer"].update(filename=filename)
             img_input = Image.open(filename)
@@ -330,9 +334,10 @@ while True:
     # memanggil fungsi brightness
     elif event == "BrightnessSlider":
         try:
-            filename = os.path.join(values["ImgFolder"], values["ImgList"][0])
             window["FilepathImgInput"].update(filename)
+
             window["ImgInputViewer"].update(filename=filename)
+
             window["ImgProcessingType"].update(filename)
             window["ImgOutputViewer"].update(filename=filename)
             img_input = Image.open(filename)
@@ -403,7 +408,6 @@ while True:
 
     elif event == "ImgBlending":
         try:
-
             if values["ImgListBlending"]:
                 filename_blending = os.path.join(
                     values["ImgFolderBlending"], values["ImgListBlending"][0]
@@ -416,8 +420,22 @@ while True:
                 )  # nilai alpha menjadi 0.5
                 output_image.save(filename_out)
                 window["ImgOutputViewer"].update(filename=filename_out)
+
+                # Update informasi ukuran gambar output blending
+                img_width_output, img_height_output = output_image.size
+                window["ImgSize_output"].update(
+                    "Image Size : "
+                    + str(img_width_output)
+                    + " x "
+                    + str(img_height_output)
+                )
+
+                # Update informasi kedalaman warna gambar output blending
+                coldepth_output = mode_to_coldepth[output_image.mode]
+                window["ImgColorDepth_output"].update(
+                    "Color Depth : " + str(coldepth_output)
+                )
             else:
                 print("tidak ada file yang diblending.")
-
         except:
             pass
