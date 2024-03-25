@@ -41,6 +41,12 @@ image_viewer_column = [
     [sg.Image(key="ImgInputViewer")],
 ]
 
+image_viewer_column_input2 = [
+    [sg.Text("Image Input 2:")],
+    [sg.Text(size=(15, 1), key="FilepathImgInput2")],
+    [sg.Image(key="ImgInputViewer2")],
+]
+
 
 # Kolom Area No 3: informasi gambar untuk kolom input
 list_processing = [
@@ -108,15 +114,17 @@ image_viewer_column2 = [
 # Gabung Full layout tata letak setiap colom
 layout = [
     [
-        sg.Column(file_list_column),
-        sg.Column(file_list_column_blending),
+        sg.Column(
+            [[sg.Column(file_list_column)], [sg.Column(file_list_column_blending)]]
+        ),
         sg.VSeperator(),
-        # sg.Column(list_processing_output),
-        sg.Column(image_viewer_column2),  # tukar posisi
+        sg.Column(image_viewer_column2),
         sg.VSeperator(),
         sg.Column(list_processing),
         sg.VSeperator(),
-        sg.Column(image_viewer_column),  # tukar posisi
+        sg.Column(
+            [[sg.Column(image_viewer_column)], [sg.Column(image_viewer_column_input2)]]
+        ),
     ],
 ]
 
@@ -147,6 +155,18 @@ while True:
             and f.lower().endswith((".png", ".gif"))
         ]
         window["ImgList"].update(fnames)
+
+    elif (
+        event == "ImgListBlending"
+    ):  # A file was chosen from the listbox for Input Image 2
+        try:
+            filename_input2 = os.path.join(
+                values["ImgFolderBlending"], values["ImgListBlending"][0]
+            )
+            window["FilepathImgInput2"].update(filename_input2)
+            window["ImgInputViewer2"].update(filename=filename_input2)
+        except:
+            pass
 
     elif event == "ImgFolderBlending":
         folder_blending = values["ImgFolderBlending"]
