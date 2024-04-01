@@ -51,7 +51,7 @@ image_viewer_column_input2 = [
 # Kolom Area No 3: informasi gambar untuk kolom input
 list_processing = [
     [
-        sg.Text("Image Information:"),
+        sg.Text("Image Information Img 1:"),
     ],
     [
         sg.Text(size=(20, 1), key="ImgSize"),
@@ -60,19 +60,30 @@ list_processing = [
         sg.Text(size=(20, 1), key="ImgColorDepth"),
     ],
     [
+        sg.Text("Image Information Img 2:"),
+    ],
+    [
+        sg.Text(size=(20, 1), key="ImgSize2"),
+    ],
+    [
+        sg.Text(size=(20, 1), key="ImgColorDepth2"),
+    ],
+    [],
+    [
+        sg.Text(" "),
         sg.Text("List of Processing:"),
     ],
     [
-        sg.Button("Image Negative", size=(15, 1), key="ImgNegative"),
+        sg.Button("Image Negative", size=(17, 1), key="ImgNegative"),
     ],
     [
-        sg.Button("Image Rotate 90", size=(15, 1), key="ImgRotate90"),
+        sg.Button("Image Rotate 90", size=(17, 1), key="ImgRotate90"),
     ],
     [
-        sg.Button("Image Rotate 180", size=(15, 1), key="ImgRotate180"),
+        sg.Button("Image Rotate 180", size=(17, 1), key="ImgRotate180"),
     ],
     [
-        sg.Button("Image Rotate 270", size=(15, 1), key="ImgRotate270"),
+        sg.Button("Image Rotate 270", size=(17, 1), key="ImgRotate270"),
     ],
     [
         sg.Text("Atur Brightness: "),
@@ -86,11 +97,51 @@ list_processing = [
         ),
     ],
     [
-        sg.Button(
-            "Image Blending",
-            size=(15, 1),
-            key="ImgBlending",
-        )
+        sg.Text("Img Blending: "),
+    ],
+    [
+        sg.Text("Value Img Alpha 1: "),
+        sg.Slider(
+            range=(0.0, 1),
+            default_value=0,
+            size=(15, 10),
+            orientation="horizontal",
+            key="Alpha1",
+            enable_events=True,
+            resolution=0.01,
+        ),
+    ],
+    [
+        sg.Text("Value Img Alpha 2: "),
+        sg.Slider(
+            range=(0.0, 1),
+            default_value=0,
+            size=(15, 10),
+            orientation="horizontal",
+            key="Alpha2",
+            enable_events=True,
+            resolution=0.01,
+        ),
+    ],
+    [
+        sg.Button("Flip Horizontal", size=(17, 1), key="horizontal"),
+    ],
+    [
+        sg.Button("Flip Vertical", size=(17, 1), key="vertical"),
+    ],
+    [
+        sg.Button("Flip Horizontal-Vertical", size=(17, 2), key="horizontal-vertical"),
+    ],
+    [
+        sg.Text("Thresholding: "),
+        sg.Slider(
+            range=(0, 255),
+            default_value=0,
+            size=(15, 10),
+            orientation="horizontal",
+            key="ImgThresholding",
+            enable_events=True,
+        ),
     ],
 ]
 
@@ -118,13 +169,13 @@ layout = [
             [[sg.Column(file_list_column)], [sg.Column(file_list_column_blending)]]
         ),
         sg.VSeperator(),
-        sg.Column(image_viewer_column2),
-        sg.VSeperator(),
-        sg.Column(list_processing),
-        sg.VSeperator(),
         sg.Column(
             [[sg.Column(image_viewer_column)], [sg.Column(image_viewer_column_input2)]]
         ),
+        sg.VSeperator(),
+        sg.Column(list_processing),
+        sg.VSeperator(),
+        sg.Column(image_viewer_column2),
     ],
 ]
 
@@ -158,13 +209,38 @@ while True:
 
     elif (
         event == "ImgListBlending"
-    ):  # A file was chosen from the listbox for Input Image 2
+    ):  # A file was chosen from the blending image listbox
         try:
             filename_input2 = os.path.join(
                 values["ImgFolderBlending"], values["ImgListBlending"][0]
             )
             window["FilepathImgInput2"].update(filename_input2)
             window["ImgInputViewer2"].update(filename=filename_input2)
+
+            img_input2 = Image.open(filename_input2)
+            img_output2 = Image.open(filename_input2)
+            img_width2, img_height2 = img_input2.size
+            window["ImgSize2"].update(
+                "Image Size : " + str(img_width2) + " x " + str(img_height2)
+            )
+
+            # Color depth
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            coldepth2 = mode_to_coldepth[img_input2.mode]
+            window["ImgColorDepth2"].update("Color Depth : " + str(coldepth2))
         except:
             pass
 
@@ -173,8 +249,7 @@ while True:
         try:
             # Get list of files in folder
             file_list = os.listdir(folder_blending)
-        except Exception as e:
-            print("Error:", e)
+        except:
             file_list = []
 
         fnamesblending = [
@@ -235,7 +310,6 @@ while True:
             img_input = Image.open(filename)
             img_output = Image.open(filename)
 
-            # Update informasi kedalaman warna gambar input
             mode_to_coldepth = {
                 "1": 1,
                 "L": 8,
@@ -258,19 +332,16 @@ while True:
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
-            # Update informasi ukuran gambar input
             img_width, img_height = img_input.size
             window["ImgSize"].update(
                 "Image Size : " + str(img_width) + " x " + str(img_height)
             )
 
-            # Update informasi ukuran gambar output
             img_width_output, img_height_output = img_output.size
             window["ImgSize_output"].update(
                 "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
             )
 
-            # Update informasi kedalaman warna gambar output
             coldepth_output = mode_to_coldepth[img_input.mode]
             window["ImgColorDepth_output"].update(
                 "Color Depth : " + str(coldepth_output)
@@ -284,7 +355,7 @@ while True:
         "ImgRotate90",
         "ImgRotate180",
         "ImgRotate270",
-    ]:  # A file was chosen from the listbox
+    ]:
         try:
             window["FilepathImgInput"].update(filename)
 
@@ -330,19 +401,16 @@ while True:
 
             window["ImgOutputViewer"].update(filename=filename_out)
 
-            # Update informasi ukuran gambar input
             img_width, img_height = img_input.size
             window["ImgSize"].update(
                 "Image Size : " + str(img_width) + " x " + str(img_height)
             )
 
-            # Update informasi ukuran gambar output
             img_width_output, img_height_output = img_output.size
             window["ImgSize_output"].update(
                 "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
             )
 
-            # Update informasi kedalaman warna gambar output
             coldepth_output = mode_to_coldepth[img_input.mode]
             window["ImgColorDepth_output"].update(
                 "Color Depth : " + str(coldepth_output)
@@ -387,19 +455,16 @@ while True:
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
-            # Update informasi ukuran gambar input
             img_width, img_height = img_input.size
             window["ImgSize"].update(
                 "Image Size : " + str(img_width) + " x " + str(img_height)
             )
 
-            # Update informasi ukuran gambar output
             img_width_output, img_height_output = img_output.size
             window["ImgSize_output"].update(
                 "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
             )
 
-            # Update informasi kedalaman warna gambar output
             coldepth_output = mode_to_coldepth[img_input.mode]
             window["ImgColorDepth_output"].update(
                 "Color Depth : " + str(coldepth_output)
@@ -426,7 +491,11 @@ while True:
         ]
         window["ImgListBlending"].update(fnamesblending)
 
-    elif event == "ImgBlending":
+    # memanggil fungsi blending
+    elif event in [
+        "Alpha1",
+        "Alpha2",
+    ]:
         try:
             if values["ImgListBlending"]:
                 filename_blending = os.path.join(
@@ -435,13 +504,14 @@ while True:
                 input_image2 = Image.open(filename_blending)
 
                 window["ImgProcessingType"].update("Image Blending")
+                alpha = values["Alpha1"]
+                alpha2 = values["Alpha2"]
                 output_image = blending(
-                    img_input, coldepth, input_image2, coldepth, 0.5, 0.5
+                    img_input, coldepth, input_image2, coldepth, alpha, alpha2
                 )  # nilai alpha menjadi 0.5
                 output_image.save(filename_out)
                 window["ImgOutputViewer"].update(filename=filename_out)
 
-                # Update informasi ukuran gambar output blending
                 img_width_output, img_height_output = output_image.size
                 window["ImgSize_output"].update(
                     "Image Size : "
@@ -450,12 +520,131 @@ while True:
                     + str(img_height_output)
                 )
 
-                # Update informasi kedalaman warna gambar output blending
                 coldepth_output = mode_to_coldepth[output_image.mode]
                 window["ImgColorDepth_output"].update(
                     "Color Depth : " + str(coldepth_output)
                 )
             else:
                 print("tidak ada file yang diblending.")
+        except:
+            pass
+
+    # memanggil fungsi imgflip
+
+    elif event in [
+        "vertical",
+        "horizontal",
+        "horizontal-vertical",
+    ]:  # A file was chosen from the listbox
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+
+            # Update informasi kedalaman warna gambar input
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            if event == "vertical":
+                flip_type = "vertical"
+            elif event == "horizontal":
+                flip_type = "horizontal"
+            elif event == "horizontal-vertical":
+                flip_type = "horizontal-vertical"
+
+            window["ImgProcessingType"].update("Image Flip: " + flip_type)
+            img_output = ImgFlip(
+                img_input, mode_to_coldepth[img_input.mode], 0, flip_type
+            )
+
+            filename_out = filename.replace(".", "_output.")
+            img_output.save(filename_out)
+
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
+
+        except:
+            pass
+
+    # memanggil fungsi Thresholding
+    elif event == "ImgThresholding":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Thresholding diatur")
+
+            value = values["ImgThresholding"]
+            img_output = ImgThreholding(img_input, coldepth, value)
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
+
         except:
             pass
