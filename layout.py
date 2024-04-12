@@ -155,6 +155,30 @@ list_processing = [
         sg.Button("TY", size=(5, 1), key="ImgTranslationY"),
         sg.Button("TXY", size=(5, 1), key="ImgTranslationXY"),
     ],
+    [
+        sg.Text("Zoom In: "),
+        sg.Slider(
+            range=(0.0, 6),
+            default_value=0,
+            size=(15, 10),
+            orientation="horizontal",
+            key="ZoomIn",
+            enable_events=True,
+            resolution=0.01,
+        ),
+    ],
+    [
+        sg.Text("Shrinking: "),
+        sg.Slider(
+            range=(0.0, 6),
+            default_value=0,
+            size=(15, 10),
+            orientation="horizontal",
+            key="ShrinkingImg",
+            enable_events=True,
+            resolution=0.01,
+        ),
+    ],
 ]
 
 

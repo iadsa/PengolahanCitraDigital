@@ -500,7 +500,7 @@ while True:
 
             window["ImgProcessingType"].update("Brightness diatur")
             C = values["ImgLog"]
-            img_output = Brightness(img_input, coldepth, C)
+            img_output = Logarithmic(img_input, coldepth, C)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
@@ -525,7 +525,7 @@ while True:
         except:
             pass
 
-    # memanggil fungsi imagetranslasi
+    # memanggil fungsi image translasi
     elif event == "ImgTranslationX":
         try:
             window["FilepathImgInput"].update(filename)
@@ -673,7 +673,7 @@ while True:
 
             window["ImgProcessingType"].update("Translasi XY: ")
             sumbu_y = 50
-            sumbu_x = 10
+            sumbu_x = 30
 
             img_output = TraslationXY(img_input, coldepth, sumbu_y, sumbu_x)
             img_output.save(filename_out)
@@ -681,6 +681,114 @@ while True:
             window["ImgOutputViewer"].update(filename=filename_out)
             img_output.save(filename_out)
 
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
+
+        except:
+            pass
+
+        # img scaliing // shrinking
+
+    elif event == "ShrinkingImg":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            # Update informasi kedalaman warna gambar input
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Shrinking diatur ")
+            scaling = values["ShrinkingImg"]
+            img_output = Shrinking(img_input, coldepth, scaling)
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
+
+        except:
+            pass
+
+    elif event == "ZoomIn":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            # Update informasi kedalaman warna gambar input
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Zoom In diatur")
+            scaling = values["ZoomIn"]
+            img_output = ZoomIn(img_input, coldepth, scaling)
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
             img_width, img_height = img_input.size
