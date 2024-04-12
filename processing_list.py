@@ -1,4 +1,5 @@
 from PIL import Image, ImageOps
+import math
 
 
 def ImgNegative(img_input, coldepth):
@@ -71,9 +72,9 @@ def Brightness(img_input, coldepth, tingkat_brightness):
     for i in range(img_output.size[0]):
         for j in range(img_output.size[1]):
             r, g, b = img_input.getpixel((i, j))
-            tingkat_r = max(0, min(255, r + tingkat_brightness * (r / 255)))
-            tingkat_g = max(0, min(255, g + tingkat_brightness * (g / 255)))
-            tingkat_b = max(0, min(255, b + tingkat_brightness * (b / 255)))
+            tingkat_r = max(0, min(255, r + tingkat_brightness))
+            tingkat_g = max(0, min(255, g + tingkat_brightness))
+            tingkat_b = max(0, min(255, b + tingkat_brightness))
             pixels_output[i, j] = (int(tingkat_r), int(tingkat_g), int(tingkat_b))
 
     if coldepth == 1:
@@ -165,6 +166,147 @@ def ImgThreholding(img_input, coldepth, value):
                 pixels[i, j] = (0, 0, 0)
             else:
                 pixels[i, j] = (255, 255, 255)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# fungsi Logaritmik
+def Logarithmic(img_input, coldepth, C):
+    # rumusnya = S = C*log10(1+r)
+
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = Image.new("RGB", img_input.size)
+    pixels_output = img_output.load()
+
+    for i in range(img_output.size[0]):
+        for j in range(img_output.size[1]):
+            r, g, b = img_input.getpixel((i, j))
+            pixels_output[i, j] = (
+                int(C * math.log10(1 + r)),
+                int(C * math.log10(1 + g)),
+                int(C * math.log10(1 + b)),
+            )
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+def TraslationX(
+    img_input,
+    coldepth,
+    sumbu_x,
+):
+    # rumusnya = B(i,j) = A(i,j+n) sumbu x
+
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = Image.new("RGB", img_input.size)
+
+    img_output = Image.new("RGB", (img_input.size[1], img_input.size[0]))
+    pixels = img_output.load()
+
+    for i in range(img_output.size[0]):
+        for j in range(img_output.size[1]):
+            # sumbu x itu  kolom = 1
+            tx = i - sumbu_x
+            if 0 < tx < img_input.size[1]:
+                r, g, b = img_input.getpixel((tx, j))
+                pixels[i, j] = (r, g, b)
+            else:
+                pixels[i, j] = (0, 0, 0)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+def TraslationY(
+    img_input,
+    coldepth,
+    sumbu_y,
+):
+
+    # rumusnya = B(i,j) = A(i+m,j) sumbu y
+
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = Image.new("RGB", img_input.size)
+
+    img_output = Image.new("RGB", (img_input.size[1], img_input.size[0]))
+    pixels = img_output.load()
+
+    for i in range(img_output.size[0]):
+        for j in range(img_output.size[1]):
+            # sumbu y itu  kolom = 0
+            ty = j - sumbu_y
+            if 0 < ty < img_input.size[1]:
+                r, g, b = img_input.getpixel((i, ty))
+                pixels[i, j] = (r, g, b)
+            else:
+                pixels[i, j] = (0, 0, 0)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+def TraslationXY(
+    img_input,
+    coldepth,
+    sumbu_y,
+    sumbu_x,
+):
+
+    # rumusnya = B(i,j) = A(i+m,j+n)
+
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = Image.new("RGB", img_input.size)
+
+    img_output = Image.new("RGB", (img_input.size[1], img_input.size[0]))
+    pixels = img_output.load()
+
+    for i in range(img_output.size[0]):
+        for j in range(img_output.size[1]):
+            # sumbu y itu  kolom = 0
+            # sumbu x itu  kolom = 1
+
+            ty = j - sumbu_y
+            tx = i - sumbu_x
+
+            if 0 < tx < img_input.size[1] and 0 < ty < img_input.size[0]:
+                r, g, b = img_input.getpixel((tx, ty))
+                pixels[i, j] = (r, g, b)
+            else:
+                pixels[i, j] = (0, 0, 0)
 
     if coldepth == 1:
         img_output = img_output.convert("1")
