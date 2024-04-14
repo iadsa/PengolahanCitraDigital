@@ -158,13 +158,12 @@ list_processing = [
     [
         sg.Text("Zoom In: "),
         sg.Slider(
-            range=(0.0, 6),
+            range=(0.0, 4),
             default_value=0,
             size=(15, 10),
             orientation="horizontal",
             key="ZoomIn",
             enable_events=True,
-            resolution=0.01,
         ),
     ],
     [
@@ -176,7 +175,6 @@ list_processing = [
             orientation="horizontal",
             key="ShrinkingImg",
             enable_events=True,
-            resolution=0.01,
         ),
     ],
 ]
