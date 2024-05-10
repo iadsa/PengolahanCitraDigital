@@ -71,7 +71,7 @@ list_processing = [
         sg.Text("List of Processing:"),
     ],
     [
-        sg.Button("Image Negative", size=(17, 1), key="ImgNegative"),
+        sg.Button("Negative", size=(10, 1), key="ImgNegative"),
     ],
     [
         sg.Text("Img Rotate"),

@@ -466,18 +466,18 @@ def mean(img_input, coldepth):
 def PowerLawoperasion(img_input, coldepth, C, gamma):
     if coldepth != 24:
         img_input = img_input.convert("RGB")
-
+    # rumusnya = S = C*(r**gamma)
     img_output = Image.new("RGB", img_input.size)
     pixels_output = img_output.load()
 
     for i in range(img_output.size[0]):
         for j in range(img_output.size[1]):
             r, g, b = img_input.getpixel((i, j))
-            # Normalisasi nilai piksel
+
             r_norm = r / 255.0
             g_norm = g / 255.0
             b_norm = b / 255.0
-            # Hitung transformasi daya rendah
+
             _r = int(C * (r_norm**gamma) * 255.0)
             _g = int(C * (g_norm**gamma) * 255.0)
             _b = int(C * (b_norm**gamma) * 255.0)
