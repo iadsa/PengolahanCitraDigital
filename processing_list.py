@@ -259,7 +259,7 @@ def TraslationY(
 
     for i in range(img_output.size[0]):
         for j in range(img_output.size[1]):
-            # sumbu y itu  kolom = 0
+            # sumbu y itu  kolom = 1
             ty = j - sumbu_y
             if 0 < ty < img_input.size[1]:
                 r, g, b = img_input.getpixel((i, ty))
@@ -369,6 +369,123 @@ def ZoomIn(img_input, coldepth, scaling):
         for j in range(img_output.size[1]):
             r, g, b = img_input.getpixel((i / scaling, j / scaling))
             pixels[i, j] = (r, g, b)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# median
+def median(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = Image.new("RGB", img_input.size)
+    pixels = img_output.load()
+
+    for i in range(1, img_input.size[0] - 1):
+        for j in range(1, img_input.size[1] - 1):
+            mask = [
+                img_input.getpixel((i - 1, j - 1)),
+                img_input.getpixel((i, j - 1)),
+                img_input.getpixel((i + 1, j - 1)),
+                img_input.getpixel((i - 1, j)),
+                img_input.getpixel((i, j)),
+                img_input.getpixel((i + 1, j)),
+                img_input.getpixel((i - 1, j + 1)),
+                img_input.getpixel((i, j + 1)),
+                img_input.getpixel((i + 1, j + 1)),
+            ]
+
+            mask.sort()
+            pixels[i, j] = mask[4]
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# mean
+def mean(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+        kernel = [
+            [1, 1, 1],
+            [1, 1, 1],
+            [1, 1, 1],
+        ]
+
+        offset = len(kernel) // 2
+
+    img_output = Image.new("RGB", img_input.size)
+    pixels = img_output.load()
+
+    for i in range(1, img_input.size[0] - 1 - offset):
+        for j in range(1, img_input.size[1] - 1 - offset):
+            mask = [
+                img_input.getpixel((i - 1, j - 1)),
+                img_input.getpixel((i, j - 1)),
+                img_input.getpixel((i + 1, j - 1)),
+                img_input.getpixel((i - 1, j)),
+                img_input.getpixel((i, j)),
+                img_input.getpixel((i + 1, j)),
+                img_input.getpixel((i - 1, j + 1)),
+                img_input.getpixel((i, j + 1)),
+                img_input.getpixel((i + 1, j + 1)),
+            ]
+
+            r, g, b = (0, 0, 0)
+            for k in range(8):
+                _r, _g, _b = mask[k]
+                _r, _g, _b = round(_r / 9), round(_g / 9), round(_b / 9)
+                r, g, b = r + _r, g + _g, b + _b
+            pixels[i, j] = (r, g, b)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# power law transform
+def PowerLawoperasion(img_input, coldepth, C, gamma):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = Image.new("RGB", img_input.size)
+    pixels_output = img_output.load()
+
+    for i in range(img_output.size[0]):
+        for j in range(img_output.size[1]):
+            r, g, b = img_input.getpixel((i, j))
+            # Normalisasi nilai piksel
+            r_norm = r / 255.0
+            g_norm = g / 255.0
+            b_norm = b / 255.0
+            # Hitung transformasi daya rendah
+            _r = int(C * (r_norm**gamma) * 255.0)
+            _g = int(C * (g_norm**gamma) * 255.0)
+            _b = int(C * (b_norm**gamma) * 255.0)
+
+            _r = max(0, min(255, _r))
+            _g = max(0, min(255, _g))
+            _b = max(0, min(255, _b))
+            pixels_output[i, j] = (_r, _g, _b)
 
     if coldepth == 1:
         img_output = img_output.convert("1")

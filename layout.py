@@ -51,19 +51,19 @@ list_processing = [
         sg.Text("Image Information Img 1:"),
     ],
     [
-        sg.Text(size=(20, 1), key="ImgSize"),
+        sg.Text(size=(18, 1), key="ImgSize"),
     ],
     [
-        sg.Text(size=(20, 1), key="ImgColorDepth"),
+        sg.Text(size=(18, 1), key="ImgColorDepth"),
     ],
     [
         sg.Text("Image Information Img 2:"),
     ],
     [
-        sg.Text(size=(20, 1), key="ImgSize2"),
+        sg.Text(size=(18, 1), key="ImgSize2"),
     ],
     [
-        sg.Text(size=(20, 1), key="ImgColorDepth2"),
+        sg.Text(size=(18, 1), key="ImgColorDepth2"),
     ],
     [],
     [
@@ -74,14 +74,13 @@ list_processing = [
         sg.Button("Image Negative", size=(17, 1), key="ImgNegative"),
     ],
     [
-        sg.Button("Image Rotate 90", size=(17, 1), key="ImgRotate90"),
-        sg.Button("Image Rotate 180", size=(17, 1), key="ImgRotate180"),
+        sg.Text("Img Rotate"),
+        sg.Button("90", size=(4, 1), key="ImgRotate90"),
+        sg.Button("180", size=(4, 1), key="ImgRotate180"),
+        sg.Button("270", size=(4, 1), key="ImgRotate270"),
     ],
     [
-        sg.Button("Image Rotate 270", size=(17, 1), key="ImgRotate270"),
-    ],
-    [
-        sg.Text("Atur Brightness: "),
+        sg.Text("Brightness:"),
         sg.Slider(
             range=(-255, 255),
             default_value=0,
@@ -119,11 +118,10 @@ list_processing = [
         ),
     ],
     [
-        sg.Button("Flip Horizontal", size=(17, 1), key="horizontal"),
-        sg.Button("Flip Vertical", size=(17, 1), key="vertical"),
-    ],
-    [
-        sg.Button("Flip Horizontal-Vertical", size=(17, 2), key="horizontal-vertical"),
+        sg.Text("Flip"),
+        sg.Button("H", size=(4, 1), key="horizontal"),
+        sg.Button("V", size=(4, 1), key="vertical"),
+        sg.Button("H-V", size=(5, 1), key="horizontal-vertical"),
     ],
     [
         sg.Text("Thresholding: "),
@@ -148,9 +146,7 @@ list_processing = [
         ),
     ],
     [
-        sg.Text("Img Translation: "),
-    ],
-    [
+        sg.Text("Img Translation "),
         sg.Button("TX", size=(5, 1), key="ImgTranslationX"),
         sg.Button("TY", size=(5, 1), key="ImgTranslationY"),
         sg.Button("TXY", size=(5, 1), key="ImgTranslationXY"),
@@ -176,6 +172,13 @@ list_processing = [
             key="ShrinkingImg",
             enable_events=True,
         ),
+    ],
+    [
+        sg.Button("median", size=(8, 1), key="Median"),
+        sg.Button("mean", size=(6, 1), key="Mean"),
+    ],
+    [
+        sg.Button("powerlaw", size=(8, 1), key="PowerLaw"),
     ],
 ]
 

@@ -498,7 +498,7 @@ while True:
                 "F": 32,
             }
 
-            window["ImgProcessingType"].update("Brightness diatur")
+            window["ImgProcessingType"].update("Img Log")
             C = values["ImgLog"]
             img_output = Logarithmic(img_input, coldepth, C)
             img_output.save(filename_out)
@@ -785,6 +785,149 @@ while True:
             window["ImgProcessingType"].update("Zoom In diatur")
             scaling = values["ZoomIn"]
             img_output = ZoomIn(img_input, coldepth, scaling)
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
+
+        except:
+            pass
+
+    # median filter
+    elif event == "Median":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Median diatur")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = median(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+        # median filter
+
+    elif event == "Mean":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Mean diatur")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = mean(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "PowerLaw":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            # Update informasi kedalaman warna gambar input
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Power Law")
+            img_output = PowerLawoperasion(img_input, coldepth, C=1, gamma=0.5)
             img_output.save(filename_out)
             window["ImgOutputViewer"].update(filename=filename_out)
 
