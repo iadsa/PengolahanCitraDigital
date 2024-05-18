@@ -314,10 +314,7 @@ while True:
         window["ImgListBlending"].update(fnamesblending)
 
     # memanggil fungsi blending
-    elif event in [
-        "Alpha1",
-        "Alpha2",
-    ]:
+    elif event in ["Alpha1", "Alpha2"]:
         try:
             if values["ImgListBlending"]:
                 filename_blending = os.path.join(
@@ -326,11 +323,20 @@ while True:
                 input_image2 = Image.open(filename_blending)
 
                 window["ImgProcessingType"].update("Image Blending")
-                alpha = values["Alpha1"]
-                alpha2 = values["Alpha2"]
+
+                try:
+                    alpha = float(values["Alpha1"])
+                    alpha2 = float(values["Alpha2"])
+                except ValueError:
+                    print("Alpha values must be numbers.")
+                    continue
+
                 output_image = blending(
                     img_input, coldepth, input_image2, coldepth, alpha, alpha2
-                )  # nilai alpha menjadi 0.5
+                )
+                filename_out = os.path.join(
+                    values["ImgFolderBlending"], ".", "_output."
+                )
                 output_image.save(filename_out)
                 window["ImgOutputViewer"].update(filename=filename_out)
 
@@ -347,9 +353,9 @@ while True:
                     "Color Depth : " + str(coldepth_output)
                 )
             else:
-                print("tidak ada file yang diblending.")
-        except:
-            pass
+                print("No files selected for blending.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
     # memanggil fungsi imgflip
 
@@ -390,9 +396,7 @@ while True:
                 flip_type = "horizontal-vertical"
 
             window["ImgProcessingType"].update("Image Flip: " + flip_type)
-            img_output = ImgFlip(
-                img_input, mode_to_coldepth[img_input.mode], 0, flip_type
-            )
+            img_output = ImgFlip(img_input, mode_to_coldepth[img_input.mode], flip_type)
 
             filename_out = filename.replace(".", "_output.")
             img_output.save(filename_out)
@@ -951,3 +955,59 @@ while True:
 
         except:
             pass
+
+    # ZoomNegativeRotateFlipBlend
+    elif event == "ZoomNegativeRotateFlipBlend":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            # Update informasi kedalaman warna gambar input
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("ZNRFB")
+            scaling = 2
+
+            # mengatur nilai output processing
+            img_output = ZNRFB(img_input, mode_to_coldepth[img_input.mode], scaling)
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            coldepth_output = mode_to_coldepth[img_input.mode]
+            window["ImgColorDepth_output"].update(
+                "Color Depth : " + str(coldepth_output)
+            )
+
+        except Exception as e:
+            print("An error occurred:", e)

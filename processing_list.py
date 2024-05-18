@@ -92,10 +92,9 @@ def Brightness(img_input, coldepth, tingkat_brightness):
 def blending(input_image, color_depth, input_image2, color_depth2, alpha, alpha2):
     if color_depth != 24:
         input_image = input_image.convert("RGB")
-    elif color_depth2 != 24:
+    if color_depth2 != 24:
         input_image2 = input_image2.convert("RGB")
 
-    # Resize input_image2 to match the size of input_image
     input_image2 = input_image2.resize(input_image.size)
 
     output_image = Image.new("RGB", input_image.size)
@@ -105,50 +104,46 @@ def blending(input_image, color_depth, input_image2, color_depth2, alpha, alpha2
         for j in range(output_image.size[1]):
             color1 = input_image.getpixel((i, j))
             color2 = input_image2.getpixel((i, j))
-            r = int(color1[0] * alpha) + int(color2[0] * alpha2)
-            g = int(color1[1] * alpha) + int(color2[1] * alpha2)
-            b = int(color1[2] * alpha) + int(color2[2] * alpha2)
+            r = int(color1[0] * alpha + color2[0] * alpha2)
+            g = int(color1[1] * alpha + color2[1] * alpha2)
+            b = int(color1[2] * alpha + color2[2] * alpha2)
             output_pixels[i, j] = (r, g, b)
-
-    if color_depth == 1:
-        output_image = output_image.convert("1")
-    elif color_depth == 8:
-        output_image = output_image.convert("L")
-    else:
-        output_image = output_image.convert("RGB")
 
     return output_image
 
 
 # membuat fungsi Flip
-def ImgFlip(img_input, coldepth, deg, flip):
-    # solusi 1
-    # img_output=img_input.flip(deg)
+def ImgFlip(img_input, coldepth, flip):
 
-    # solusi 2
     if coldepth != 24:
         img_input = img_input.convert("RGB")
 
-    img_output = Image.new("RGB", (img_input.size[0], img_input.size[1]))
+    img_output = Image.new("RGB", img_input.size)
     pixels = img_output.load()
-    for i in range(img_input.size[0]):
-        for j in range(img_input.size[1]):
-            if flip == "vertical":
-                r, g, b = img_input.getpixel((i, img_input.size[1] - j - 1))
-            elif flip == "horizontal":
-                r, g, b = img_input.getpixel((img_input.size[0] - i - 1, j))
-            elif flip == "horizontal-vertical":
-                r, g, b = img_input.getpixel(
+
+    if flip == "vertical":
+        for i in range(img_input.size[0]):
+            for j in range(img_input.size[1]):
+
+                pixels[i, j] = img_input.getpixel((i, img_input.size[1] - j - 1))
+    elif flip == "horizontal":
+        for i in range(img_input.size[0]):
+            for j in range(img_input.size[1]):
+
+                pixels[i, j] = img_input.getpixel((img_input.size[0] - i - 1, j))
+    elif flip == "horizontal-vertical":
+        for i in range(img_input.size[0]):
+            for j in range(img_input.size[1]):
+
+                pixels[i, j] = img_input.getpixel(
                     (img_input.size[0] - i - 1, img_input.size[1] - j - 1)
                 )
-            pixels[i, j] = (r, g, b)
 
     if coldepth == 1:
         img_output = img_output.convert("1")
     elif coldepth == 8:
         img_output = img_output.convert("L")
-    else:
-        img_output = img_output.convert("RGB")
+
     return img_output
 
 
@@ -367,7 +362,7 @@ def ZoomIn(img_input, coldepth, scaling):
 
     for i in range(img_output.size[0]):
         for j in range(img_output.size[1]):
-            r, g, b = img_input.getpixel((i / scaling, j / scaling))
+            r, g, b = img_input.getpixel((i // scaling, j // scaling))
             pixels[i, j] = (r, g, b)
 
     if coldepth == 1:
@@ -495,3 +490,56 @@ def PowerLawoperasion(img_input, coldepth, C, gamma):
         img_output = img_output.convert("RGB")
 
     return img_output
+
+
+# img_neg & flip
+
+
+# citra kamera 256 256 terus
+# dengan output negatif atasnya
+# bagian kiri rotate 90
+# bagain kanan di flip Vertikal
+#
+# citra output 512  x 512
+#
+#
+#
+
+
+# ZOOM_NEGATIF_ROTATE_FLIP_BLENDING
+def ZNRFB(img_input, coldepth, scaling):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    neg_img = ImgNegative(img_input, coldepth)
+
+    zoomed_neg_img = ZoomIn(neg_img, coldepth, scaling)
+
+    rotated_img = ImgRotate(img_input, coldepth, 90, "C")
+
+    flipped_img = ImgFlip(img_input, coldepth, flip="horizontal")
+
+    output_image = Image.new("RGB", (512, 512))
+
+    for i in range(512):
+        for j in range(256):
+            output_image.putpixel((i, j), zoomed_neg_img.getpixel((i, j)))
+
+    blended_rotated_img = blending(img_input, coldepth, rotated_img, coldepth, 0.0, 0.5)
+    for i in range(256):
+        for j in range(256):
+            output_image.putpixel((i, j + 256), blended_rotated_img.getpixel((i, j)))
+
+    blended_flipped_img = blending(img_input, coldepth, flipped_img, coldepth, 0.0, 0.5)
+    for i in range(256):
+        for j in range(256):
+            output_image.putpixel(
+                (i + 256, j + 256), blended_flipped_img.getpixel((i, j))
+            )
+
+    if coldepth == 1:
+        output_image = output_image.convert("1")
+    elif coldepth == 8:
+        output_image = output_image.convert("L")
+
+    return output_image

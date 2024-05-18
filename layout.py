@@ -180,6 +180,13 @@ list_processing = [
     [
         sg.Button("powerlaw", size=(8, 1), key="PowerLaw"),
     ],
+    [
+        sg.Button(
+            "ZNRFB",
+            size=(10, 1),
+            key="ZoomNegativeRotateFlipBlend",
+        ),
+    ],
 ]
 
 
