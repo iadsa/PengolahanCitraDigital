@@ -546,9 +546,10 @@ def ZNRFB(img_input, coldepth, scaling):
     return output_image
 
 
-#Materi  edge detector 
+# Materi  edge detector
 from PIL import Image
 import math
+
 
 def gradien1(img_input, coldepth):
     if coldepth != 24:
@@ -598,7 +599,6 @@ def gradien1(img_input, coldepth):
         img_output = img_output.convert("RGB")
 
     return img_output
-
 
 
 # sobel gx
@@ -973,15 +973,31 @@ def robert(img_input, coldepth):
 
 
 def laplacian(img_input, coldepth):
-
     if coldepth != 24:
         img_input = img_input.convert("RGB")
 
-    # Kernel Laplacian
-    laplacian_kernel = [
-        [0, 1, 0],
-        [1, -4, 1],
-        [0, 1, 0],
+    # Empat kernel Laplacian
+    laplacian_kernels = [
+        [
+            [0, 1, 0],
+            [1, -4, 1],
+            [0, 1, 0],
+        ],
+        [
+            [1, 1, 1],
+            [1, -8, 1],
+            [1, 1, 1],
+        ],
+        [
+            [0, -1, 0],
+            [-1, 4, -1],
+            [0, -1, 0],
+        ],
+        [
+            [-1, -1, -1],
+            [-1, 8, -1],
+            [-1, -1, -1],
+        ],
     ]
 
     width, height = img_input.size
@@ -990,16 +1006,20 @@ def laplacian(img_input, coldepth):
 
     for i in range(1, width - 1):
         for j in range(1, height - 1):
-            laplacian = 0
+            laplacian_total = 0
 
-            # Mengambil piksel dan intensitas untuk Laplacian
-            for m in range(3):
-                for n in range(3):
-                    pixel = img_input.getpixel((i + m - 1, j + n - 1))
-                    intensity = sum(pixel) / 3
-                    laplacian += laplacian_kernel[m][n] * intensity
+            # Menggunakan semua kernel Laplacian
+            for kernel in laplacian_kernels:
+                laplacian_value = 0
+                for m in range(3):
+                    for n in range(3):
+                        pixel = img_input.getpixel((i + m - 1, j + n - 1))
+                        intensity = sum(pixel) / 3
+                        laplacian_value += kernel[m][n] * intensity
 
-            laplacian = int(abs(laplacian))
+                laplacian_total += abs(laplacian_value)
+
+            laplacian = int(laplacian_total / len(laplacian_kernels))
             laplacian = min(255, max(0, laplacian))
             pixels_output[i, j] = (laplacian, laplacian, laplacian)
 
