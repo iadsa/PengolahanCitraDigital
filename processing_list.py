@@ -547,6 +547,9 @@ def ZNRFB(img_input, coldepth, scaling):
 
 
 #Materi  edge detector 
+from PIL import Image
+import math
+
 def gradien1(img_input, coldepth):
     if coldepth != 24:
         img_input = img_input.convert("RGB")
@@ -574,48 +577,14 @@ def gradien1(img_input, coldepth):
             gx = 0
             gy = 0
 
-            pixel1 = img_input.getpixel((i - 1, j - 1))
-            pixel2 = img_input.getpixel((i, j - 1))
-            pixel3 = img_input.getpixel((i + 1, j - 1))
-            pixel4 = img_input.getpixel((i - 1, j))
-            pixel5 = img_input.getpixel((i, j))
-            pixel6 = img_input.getpixel((i + 1, j))
-            pixel7 = img_input.getpixel((i - 1, j + 1))
-            pixel8 = img_input.getpixel((i, j + 1))
-            pixel9 = img_input.getpixel((i + 1, j + 1))
+            # Iterate over the kernel
+            for m in range(-offset, offset + 1):
+                for n in range(-offset, offset + 1):
+                    pixel = img_input.getpixel((i + m, j + n))
+                    intensity = sum(pixel) / 3
 
-            intensity1 = sum(pixel1) / 3
-            intensity2 = sum(pixel2) / 3
-            intensity3 = sum(pixel3) / 3
-            intensity4 = sum(pixel4) / 3
-            intensity5 = sum(pixel5) / 3
-            intensity6 = sum(pixel6) / 3
-            intensity7 = sum(pixel7) / 3
-            intensity8 = sum(pixel8) / 3
-            intensity9 = sum(pixel9) / 3
-
-            gx = (
-                (-1 * intensity1)
-                + (0 * intensity2)
-                + (1 * intensity3)
-                + (-2 * intensity4)
-                + (0 * intensity5)
-                + (2 * intensity6)
-                + (-1 * intensity7)
-                + (0 * intensity8)
-                + (1 * intensity9)
-            )
-            gy = (
-                (-1 * intensity1)
-                + (-2 * intensity2)
-                + (-1 * intensity3)
-                + (0 * intensity4)
-                + (0 * intensity5)
-                + (0 * intensity6)
-                + (1 * intensity7)
-                + (2 * intensity8)
-                + (1 * intensity9)
-            )
+                    gx += gx_kernel[m + offset][n + offset] * intensity
+                    gy += gy_kernel[m + offset][n + offset] * intensity
 
             magnitude = int(math.sqrt(gx**2 + gy**2))
             magnitude = min(255, max(0, magnitude))
@@ -629,6 +598,7 @@ def gradien1(img_input, coldepth):
         img_output = img_output.convert("RGB")
 
     return img_output
+
 
 
 # sobel gx
