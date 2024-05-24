@@ -8,13 +8,13 @@ file_list_column = [
         sg.Text("Buka Folder :"),
     ],
     [
-        sg.In(size=(10, 1), enable_events=True, key="ImgFolder"),
+        sg.In(size=(20, 1), enable_events=True, key="ImgFolder"),
         sg.FolderBrowse("pilih"),
     ],
     [
         sg.Text("Pilih Gambar:"),
     ],
-    [sg.Listbox(values=[], enable_events=True, size=(10, 5), key="ImgList")],
+    [sg.Listbox(values=[], enable_events=True, size=(20, 5), key="ImgList")],
 ]
 
 file_list_column_blending = [
@@ -22,25 +22,25 @@ file_list_column_blending = [
         sg.Text("Buka Folder :"),
     ],
     [
-        sg.In(size=(10, 1), enable_events=True, key="ImgFolderBlending"),
+        sg.In(size=(20, 1), enable_events=True, key="ImgFolderBlending"),
         sg.FolderBrowse("pilih"),
     ],
     [
         sg.Text("Pilih Gambar Blending:"),
     ],
-    [sg.Listbox(values=[], enable_events=True, size=(10, 5), key="ImgListBlending")],
+    [sg.Listbox(values=[], enable_events=True, size=(20, 5), key="ImgListBlending")],
 ]
 
 # Kolom Area No 2: menampilkan input gambar
 image_viewer_column = [
     [sg.Text("Image Input :")],
-    [sg.Text(size=(15, 1), key="FilepathImgInput")],
+    [sg.Text(size=(20, 1), key="FilepathImgInput")],
     [sg.Image(key="ImgInputViewer")],
 ]
 
 image_viewer_column_input2 = [
     [sg.Text("Image Input 2:")],
-    [sg.Text(size=(15, 1), key="FilepathImgInput2")],
+    [sg.Text(size=(20, 1), key="FilepathImgInput2")],
     [sg.Image(key="ImgInputViewer2")],
 ]
 
@@ -65,7 +65,6 @@ list_processing = [
     [
         sg.Text(size=(18, 1), key="ImgColorDepth2"),
     ],
-    [],
     [
         sg.Text(" "),
         sg.Text("List of Processing:"),
@@ -176,15 +175,79 @@ list_processing = [
     [
         sg.Button("median", size=(8, 1), key="Median"),
         sg.Button("mean", size=(6, 1), key="Mean"),
-    ],
-    [
-        sg.Button("powerlaw", size=(8, 1), key="PowerLaw"),
-    ],
-    [
+        sg.Button("powerlaw", size=(7, 1), key="PowerLaw"),
         sg.Button(
             "ZNRFB",
-            size=(10, 1),
+            size=(7, 1),
             key="ZoomNegativeRotateFlipBlend",
+        ),
+    ],
+    [
+        sg.Text("Edge Detector: "),
+        sg.Button(
+            "gradien1",
+            size=(8, 1),
+            key="gradien1",
+        ),
+        sg.Button(
+            "Laplacian",
+            size=(8, 1),
+            key="Laplacian",
+        ),
+        sg.Button(
+            "Kompas",
+            size=(8, 1),
+            key="kompas",
+        ),
+        sg.Text("Sobel: "),
+        sg.Button(
+            "gx",
+            size=(3, 1),
+            key="gx_sobel",
+        ),
+        sg.Button(
+            "gy",
+            size=(3, 1),
+            key="gy_sobel",
+        ),
+        sg.Button(
+            "sobel",
+            size=(5, 1),
+            key="sobel",
+        ),
+    ],
+    [
+        sg.Text("Prewitt: "),
+        sg.Button(
+            "gx",
+            size=(3, 1),
+            key="gx_prewitt",
+        ),
+        sg.Button(
+            "gy",
+            size=(3, 1),
+            key="gy_prewitt",
+        ),
+        sg.Button(
+            "prewitt",
+            size=(6, 1),
+            key="prewitt",
+        ),
+        sg.Text("Robert: "),
+        sg.Button(
+            "gx",
+            size=(3, 1),
+            key="gx_robert",
+        ),
+        sg.Button(
+            "gy",
+            size=(3, 1),
+            key="gy_robert",
+        ),
+        sg.Button(
+            "robert",
+            size=(5, 1),
+            key="robert",
         ),
     ],
 ]

@@ -1,5 +1,6 @@
 from PIL import Image, ImageOps
 import math
+import numpy as np
 
 
 def ImgNegative(img_input, coldepth):
@@ -441,7 +442,7 @@ def mean(img_input, coldepth):
             ]
 
             r, g, b = (0, 0, 0)
-            for k in range(8):
+            for k in range(9):
                 _r, _g, _b = mask[k]
                 _r, _g, _b = round(_r / 9), round(_g / 9), round(_b / 9)
                 r, g, b = r + _r, g + _g, b + _b
@@ -543,3 +544,581 @@ def ZNRFB(img_input, coldepth, scaling):
         output_image = output_image.convert("L")
 
     return output_image
+
+
+#Materi  edge detector 
+def gradien1(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gx_kernel = [
+        [-1, 0, 1],
+        [-2, 0, 2],
+        [-1, 0, 1],
+    ]
+
+    gy_kernel = [
+        [-1, -2, -1],
+        [0, 0, 0],
+        [1, 2, 1],
+    ]
+
+    offset = len(gx_kernel) // 2
+
+    img_output = Image.new("RGB", img_input.size)
+    pixels = img_output.load()
+
+    width, height = img_input.size
+    for i in range(offset, width - offset):
+        for j in range(offset, height - offset):
+            gx = 0
+            gy = 0
+
+            pixel1 = img_input.getpixel((i - 1, j - 1))
+            pixel2 = img_input.getpixel((i, j - 1))
+            pixel3 = img_input.getpixel((i + 1, j - 1))
+            pixel4 = img_input.getpixel((i - 1, j))
+            pixel5 = img_input.getpixel((i, j))
+            pixel6 = img_input.getpixel((i + 1, j))
+            pixel7 = img_input.getpixel((i - 1, j + 1))
+            pixel8 = img_input.getpixel((i, j + 1))
+            pixel9 = img_input.getpixel((i + 1, j + 1))
+
+            intensity1 = sum(pixel1) / 3
+            intensity2 = sum(pixel2) / 3
+            intensity3 = sum(pixel3) / 3
+            intensity4 = sum(pixel4) / 3
+            intensity5 = sum(pixel5) / 3
+            intensity6 = sum(pixel6) / 3
+            intensity7 = sum(pixel7) / 3
+            intensity8 = sum(pixel8) / 3
+            intensity9 = sum(pixel9) / 3
+
+            gx = (
+                (-1 * intensity1)
+                + (0 * intensity2)
+                + (1 * intensity3)
+                + (-2 * intensity4)
+                + (0 * intensity5)
+                + (2 * intensity6)
+                + (-1 * intensity7)
+                + (0 * intensity8)
+                + (1 * intensity9)
+            )
+            gy = (
+                (-1 * intensity1)
+                + (-2 * intensity2)
+                + (-1 * intensity3)
+                + (0 * intensity4)
+                + (0 * intensity5)
+                + (0 * intensity6)
+                + (1 * intensity7)
+                + (2 * intensity8)
+                + (1 * intensity9)
+            )
+
+            magnitude = int(math.sqrt(gx**2 + gy**2))
+            magnitude = min(255, max(0, magnitude))
+            pixels[i, j] = (magnitude, magnitude, magnitude)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# sobel gx
+def sobel_gx(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gx_kernel = [
+        [-1, 0, 1],
+        [-2, 0, 2],
+        [-1, 0, 1],
+    ]
+
+    offset = len(gx_kernel) // 2
+    img_output = Image.new("L", img_input.size)
+    pixels = img_output.load()
+    width, height = img_input.size
+
+    for i in range(offset, width - offset):
+        for j in range(offset, height - offset):
+            gx = 0
+            for k in range(len(gx_kernel)):
+                for l in range(len(gx_kernel[k])):
+                    pixel = img_input.getpixel((i + k - offset, j + l - offset))
+                    intensity = sum(pixel) / 3
+                    gx += intensity * gx_kernel[k][l]
+            gx = int(min(255, max(0, gx)))
+            pixels[i, j] = gx
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# sobel_gy
+def sobel_gy(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gy_kernel = [
+        [-1, -2, -1],
+        [0, 0, 0],
+        [1, 2, 1],
+    ]
+
+    offset = len(gy_kernel) // 2
+    img_output = Image.new("L", img_input.size)
+    pixels = img_output.load()
+    width, height = img_input.size
+
+    for i in range(offset, width - offset):
+        for j in range(offset, height - offset):
+            gy = 0
+            for k in range(len(gy_kernel)):
+                for l in range(len(gy_kernel[k])):
+                    pixel = img_input.getpixel((i + k - offset, j + l - offset))
+                    intensity = sum(pixel) / 3
+                    gy += intensity * gy_kernel[k][l]
+            gy = int(min(255, max(0, gy)))
+            pixels[i, j] = gy
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+def sobel(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+    gx_kernel = [
+        [-1, 0, 1],
+        [-2, 0, 2],
+        [-1, 0, 1],
+    ]
+
+    gy_kernel = [
+        [-1, -2, -1],
+        [0, 0, 0],
+        [1, 2, 1],
+    ]
+
+    offset = len(gx_kernel) // 2
+    img_output = Image.new("L", img_input.size)
+    pixels = img_output.load()
+    width, height = img_input.size
+
+    for i in range(offset, width - offset):
+        for j in range(offset, height - offset):
+            gx = 0
+            gy = 0
+            for k in range(len(gx_kernel)):
+                for l in range(len(gx_kernel[k])):
+                    pixel = img_input.getpixel((i + k - offset, j + l - offset))
+                    intensity = sum(pixel) / 3
+                    gx += intensity * gx_kernel[k][l]
+                    gy += intensity * gy_kernel[k][l]
+            magnitude = int(math.sqrt(gx**2 + gy**2))
+            magnitude = min(255, max(0, magnitude))
+            pixels[i, j] = magnitude
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# prewitt
+def prewitt_gx(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gx_kernel = [
+        [-1, 0, 1],
+        [-1, 0, 1],
+        [-1, 0, 1],
+    ]
+
+    offset = len(gx_kernel) // 2
+    img_output = Image.new("L", img_input.size)
+    pixels = img_output.load()
+    width, height = img_input.size
+
+    for i in range(offset, width - offset):
+        for j in range(offset, height - offset):
+            gx = 0
+            for k in range(len(gx_kernel)):
+                for l in range(len(gx_kernel[k])):
+                    pixel = img_input.getpixel((i + k - offset, j + l - offset))
+                    intensity = sum(pixel) / 3
+                    gx += intensity * gx_kernel[k][l]
+            gx = int(min(255, max(0, gx)))
+            pixels[i, j] = gx
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# prewitt
+def prewitt_gy(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gy_kernel = [
+        [-1, -1, -1],
+        [0, 0, 0],
+        [1, 1, 1],
+    ]
+
+    offset = len(gy_kernel) // 2
+    img_output = Image.new("L", img_input.size)
+    pixels = img_output.load()
+    width, height = img_input.size
+
+    for i in range(offset, width - offset):
+        for j in range(offset, height - offset):
+            gy = 0
+            for k in range(len(gy_kernel)):
+                for l in range(len(gy_kernel[k])):
+                    pixel = img_input.getpixel((i + k - offset, j + l - offset))
+                    intensity = sum(pixel) / 3
+                    gy += intensity * gy_kernel[k][l]
+            gy = int(min(255, max(0, gy)))
+            pixels[i, j] = gy
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# prewitt_edge
+def prewitt_edge(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gx_kernel = [
+        [-1, 0, 1],
+        [-1, 0, 1],
+        [-1, 0, 1],
+    ]
+
+    gy_kernel = [
+        [-1, -1, -1],
+        [0, 0, 0],
+        [1, 1, 1],
+    ]
+
+    offset = len(gx_kernel) // 2
+    img_output = Image.new("L", img_input.size)
+    pixels = img_output.load()
+    width, height = img_input.size
+
+    for i in range(offset, width - offset):
+        for j in range(offset, height - offset):
+            gx = 0
+            gy = 0
+            for k in range(len(gx_kernel)):
+                for l in range(len(gx_kernel[k])):
+                    pixel = img_input.getpixel((i + k - offset, j + l - offset))
+                    intensity = sum(pixel) / 3
+                    gx += intensity * gx_kernel[k][l]
+                    gy += intensity * gy_kernel[k][l]
+            magnitude = int(math.sqrt(gx**2 + gy**2))
+            magnitude = min(255, max(0, magnitude))
+            pixels[i, j] = magnitude
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+##Robert operator
+
+# GX
+
+
+def robert_operator_gx(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gx_kernel = [
+        [1, 0],
+        [0, -1],
+    ]
+
+    width, height = img_input.size
+    img_output = Image.new("L", (width, height))
+    pixels_output = img_output.load()
+    pixels_input = img_input.load()
+
+    for i in range(1, width - 1):
+        for j in range(1, height - 1):
+            gx = 0
+
+            for m in range(2):
+                for n in range(2):
+                    intensity = sum(pixels_input[i + m - 1, j + n - 1]) / 3
+                    gx += gx_kernel[m][n] * intensity
+
+            gx = int(abs(gx))
+            gx = min(255, max(0, gx))
+            pixels_output[i, j] = gx
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# GY
+def robert_operator_gy(img_input, coldepth):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gy_kernel = [
+        [0, 1],
+        [-1, 0],
+    ]
+
+    width, height = img_input.size
+    img_output = Image.new("L", (width, height))
+    pixels_output = img_output.load()
+    pixels_input = img_input.load()
+
+    for i in range(1, width - 1):
+        for j in range(1, height - 1):
+            gy = 0
+
+            for m in range(2):
+                for n in range(2):
+                    intensity = sum(pixels_input[i + m - 1, j + n - 1]) / 3
+                    gy += gy_kernel[m][n] * intensity
+
+            gy = int(abs(gy))
+            gy = min(255, max(0, gy))
+            pixels_output[i, j] = gy
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# robert
+def robert(img_input, coldepth):
+
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    gx_kernel = [
+        [1, 0],
+        [0, -1],
+    ]
+
+    gy_kernel = [
+        [0, 1],
+        [-1, 0],
+    ]
+
+    width, height = img_input.size
+    img_output = Image.new("RGB", (width, height))
+    pixels_output = img_output.load()
+
+    for i in range(1, width - 1):
+        for j in range(1, height - 1):
+            gx = 0
+            gy = 0
+
+            for m in range(2):
+                for n in range(2):
+                    pixel = img_input.getpixel((i + m - 1, j + n - 1))
+                    intensity = sum(pixel) / 4
+                    gx += gx_kernel[m][n] * intensity
+                    gy += gy_kernel[m][n] * intensity
+
+            # Menghitung magnitude dari gradien
+            magnitude = int(math.sqrt(gx**2 + gy**2))
+            magnitude = min(255, max(0, magnitude))
+
+            # Setel piksel pada gambar output
+            pixels_output[i, j] = (magnitude, magnitude, magnitude)
+
+    # Konversi gambar output sesuai dengan kedalaman warna yang diinginkan
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# Laplacian Operator
+
+
+def laplacian(img_input, coldepth):
+
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    # Kernel Laplacian
+    laplacian_kernel = [
+        [0, 1, 0],
+        [1, -4, 1],
+        [0, 1, 0],
+    ]
+
+    width, height = img_input.size
+    img_output = Image.new("RGB", (width, height))
+    pixels_output = img_output.load()
+
+    for i in range(1, width - 1):
+        for j in range(1, height - 1):
+            laplacian = 0
+
+            # Mengambil piksel dan intensitas untuk Laplacian
+            for m in range(3):
+                for n in range(3):
+                    pixel = img_input.getpixel((i + m - 1, j + n - 1))
+                    intensity = sum(pixel) / 3
+                    laplacian += laplacian_kernel[m][n] * intensity
+
+            laplacian = int(abs(laplacian))
+            laplacian = min(255, max(0, laplacian))
+            pixels_output[i, j] = (laplacian, laplacian, laplacian)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+def kompas(img_input, coldepth):
+
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    # Kernel Kompas (8 arah)
+    compass_kernels = [
+        [
+            [-1, -1, -1],
+            [1, 1, 1],
+            [0, 0, 0],
+        ],  # North
+        [
+            [-1, 0, 1],
+            [-1, 0, 1],
+            [-1, 0, 1],
+        ],  # North-East
+        [
+            [0, 1, 1],
+            [-1, 0, 1],
+            [-1, -1, 0],
+        ],  # East
+        [
+            [1, 1, 1],
+            [0, 0, 0],
+            [-1, -1, -1],
+        ],  # South-East
+        [
+            [1, 0, -1],
+            [1, 0, -1],
+            [1, 0, -1],
+        ],  # South
+        [
+            [0, 0, 0],
+            [-1, -1, -1],
+            [1, 1, 1],
+        ],  # South-West
+        [
+            [0, -1, -1],
+            [1, 0, -1],
+            [1, 1, 0],
+        ],  # West
+        [
+            [-1, 0, 1],
+            [-1, 0, 1],
+            [-1, 0, 1],
+        ],  # North-West
+    ]
+
+    width, height = img_input.size
+    img_output = Image.new("RGB", (width, height))
+    pixels_output = img_output.load()
+
+    for i in range(1, width - 1):
+        for j in range(1, height - 1):
+            max_gradient = 0
+
+            for kernel in compass_kernels:
+                gradient = 0
+                for m in range(3):
+                    for n in range(3):
+                        pixel = img_input.getpixel((i + m - 1, j + n - 1))
+                        intensity = sum(pixel) / 3
+                        gradient += kernel[m][n] * intensity
+
+                max_gradient = max(max_gradient, abs(gradient))
+
+            max_gradient = int(max_gradient)
+            max_gradient = min(255, max(0, max_gradient))
+            pixels_output[i, j] = (max_gradient, max_gradient, max_gradient)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output

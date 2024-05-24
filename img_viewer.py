@@ -1011,3 +1011,580 @@ while True:
 
         except Exception as e:
             print("An error occurred:", e)
+
+    elif event == "gradien1":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("edge detector gradient")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = gradien1(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "gx_sobel":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("sobel_gx")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = sobel_gx(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "gy_sobel":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("sobel_gy")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = sobel_gy(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "gx_sobel":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("sobel_gy")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = sobel_gx(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "sobel":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("sobel")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = sobel(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    ### PREWITT
+
+    elif event == "gx_prewitt":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("gx_prewitt")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = prewitt_gx(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "gy_prewitt":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("gy_prewitt")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = prewitt_gy(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "prewitt":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("prewitt")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = prewitt_edge(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "gx_robert":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("gx_robert")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = robert_operator_gx(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "gy_robert":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("gy_robert")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = robert_operator_gy(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    elif event == "robert":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("robert")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = robert(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    # Laplacian
+
+    elif event == "Laplacian":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("laplacian")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = laplacian(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    # KOMPAS
+    elif event == "kompas":
+        try:
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("kompas")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = kompas(img_input, coldepth)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
