@@ -839,9 +839,8 @@ def prewitt_edge(img_input, coldepth):
 
 ##Robert operator
 
+
 # GX
-
-
 def robert_operator_gx(img_input, coldepth):
     if coldepth != 24:
         img_input = img_input.convert("RGB")
@@ -1107,25 +1106,37 @@ def kompas(img_input, coldepth):
 
 # Noise Graussian (scaling)
 def add_gaussian_noise(img_input, mean=0, std_dev=25, coldepth=24):
-    if coldepth != 24:
-        img_input = img_input.convert("RGB")
+    if coldepth != 24 and coldepth != 8 and coldepth != 1:
+        raise ValueError(
+            "Unsupported coldepth. Use 24 for RGB, 8 for grayscale, or 1 for binary images."
+        )
 
+    img_input = img_input.convert("RGB") if coldepth == 24 else img_input.convert("L")
     img_output = img_input.copy()
     pixels_output = img_output.load()
 
     for i in range(img_output.size[0]):
         for j in range(img_output.size[1]):
-            r, g, b = img_input.getpixel((i, j))
+            if coldepth == 24:
+                r, g, b = img_input.getpixel((i, j))
 
-            noise_r = int(random.gauss(mean, std_dev))
-            noise_g = int(random.gauss(mean, std_dev))
-            noise_b = int(random.gauss(mean, std_dev))
+                noise_r = int(random.gauss(mean, std_dev))
+                noise_g = int(random.gauss(mean, std_dev))
+                noise_b = int(random.gauss(mean, std_dev))
 
-            _r = max(0, min(255, r + noise_r))
-            _g = max(0, min(255, g + noise_g))
-            _b = max(0, min(255, b + noise_b))
+                _r = max(0, min(255, r + noise_r))
+                _g = max(0, min(255, g + noise_g))
+                _b = max(0, min(255, b + noise_b))
 
-            pixels_output[i, j] = (_r, _g, _b)
+                pixels_output[i, j] = (_r, _g, _b)
+            else:
+                gray = img_input.getpixel((i, j))
+
+                noise_gray = int(random.gauss(mean, std_dev))
+
+                _gray = max(0, min(255, gray + noise_gray))
+
+                pixels_output[i, j] = _gray
 
     if coldepth == 1:
         img_output = img_output.convert("1")
@@ -1416,16 +1427,24 @@ def max_filter(img_input):
 
 
 # Fungsi Erosi
+# penipisan objek( putih) hitam menebal
+# mengikuti kernel
+# 𝐴⊖𝐵
 def erosi(img_input):
     return min_filter(img_input)
 
 
 # Fungsi Dilasi
+# penebalan objek (putih)
+# 𝐴 ⊕ 𝐵
 def dilasi(img_input):
     return max_filter(img_input)
 
 
 # Fungsi Opening
+# turunan pertama
+# citra masukan dikenakan erosi dilanjutkan dilasi
+# 𝐴⊖𝐵⨁𝐵 (max)
 def opening(img_input):
     eroded = erosi(img_input)
     opened = dilasi(eroded)
@@ -1433,6 +1452,8 @@ def opening(img_input):
 
 
 # Fungsi Closing
+# citra masukan dikenakan dilasi dilanjutkan erosi
+# 𝐴⊕𝐵⊖𝐵 (min)
 def closing(img_input):
     dilated = dilasi(img_input)
     closed = erosi(dilated)
@@ -1440,6 +1461,7 @@ def closing(img_input):
 
 
 # Fungsi White Top Hat
+# A + B - Opening
 def white_top_hat(img_input):
     coldepth = img_input.mode
     if coldepth != "RGB":
@@ -1471,6 +1493,7 @@ def white_top_hat(img_input):
 
 
 # Fungsi Black Top Hat
+# Citra hasil Clossing - Citra masukan (A + B)
 def black_top_hat(img_input):
     coldepth = img_input.mode
     if coldepth != "RGB":
