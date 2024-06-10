@@ -1,6 +1,7 @@
 from PIL import Image, ImageOps
 import math
 import numpy as np
+import random
 
 
 def ImgNegative(img_input, coldepth):
@@ -547,8 +548,6 @@ def ZNRFB(img_input, coldepth, scaling):
 
 
 # Materi  edge detector
-from PIL import Image
-import math
 
 
 def gradien1(img_input, coldepth):
@@ -578,7 +577,6 @@ def gradien1(img_input, coldepth):
             gx = 0
             gy = 0
 
-            # Iterate over the kernel
             for m in range(-offset, offset + 1):
                 for n in range(-offset, offset + 1):
                     pixel = img_input.getpixel((i + m, j + n))
@@ -849,8 +847,8 @@ def robert_operator_gx(img_input, coldepth):
         img_input = img_input.convert("RGB")
 
     gx_kernel = [
-        [1, 0],
-        [0, -1],
+        [-1, 0],  # Membalik arah gradien gx
+        [0, 1],
     ]
 
     width, height = img_input.size
@@ -858,13 +856,14 @@ def robert_operator_gx(img_input, coldepth):
     pixels_output = img_output.load()
     pixels_input = img_input.load()
 
-    for i in range(1, width - 1):
-        for j in range(1, height - 1):
+    for i in range(width - 1):
+        for j in range(height - 1):
             gx = 0
 
             for m in range(2):
                 for n in range(2):
-                    intensity = sum(pixels_input[i + m - 1, j + n - 1]) / 3
+                    pixel = pixels_input[i + m, j + n]
+                    intensity = sum(pixel) / 3
                     gx += gx_kernel[m][n] * intensity
 
             gx = int(abs(gx))
@@ -896,13 +895,14 @@ def robert_operator_gy(img_input, coldepth):
     pixels_output = img_output.load()
     pixels_input = img_input.load()
 
-    for i in range(1, width - 1):
-        for j in range(1, height - 1):
+    for i in range(0, width - 1):
+        for j in range(0, height - 1):
             gy = 0
 
             for m in range(2):
                 for n in range(2):
-                    intensity = sum(pixels_input[i + m - 1, j + n - 1]) / 3
+                    pixel = pixels_input[i + m, j + n]
+                    intensity = sum(pixel) / 3  # Rata-rata intensitas untuk grayscale
                     gy += gy_kernel[m][n] * intensity
 
             gy = int(abs(gy))
@@ -921,7 +921,6 @@ def robert_operator_gy(img_input, coldepth):
 
 # robert
 def robert(img_input, coldepth):
-
     if coldepth != 24:
         img_input = img_input.convert("RGB")
 
@@ -947,15 +946,13 @@ def robert(img_input, coldepth):
             for m in range(2):
                 for n in range(2):
                     pixel = img_input.getpixel((i + m - 1, j + n - 1))
-                    intensity = sum(pixel) / 4
+                    intensity = sum(pixel) / 3
                     gx += gx_kernel[m][n] * intensity
                     gy += gy_kernel[m][n] * intensity
 
-            # Menghitung magnitude dari gradien
             magnitude = int(math.sqrt(gx**2 + gy**2))
             magnitude = min(255, max(0, magnitude))
 
-            # Setel piksel pada gambar output
             pixels_output[i, j] = (magnitude, magnitude, magnitude)
 
     # Konversi gambar output sesuai dengan kedalaman warna yang diinginkan
@@ -976,7 +973,6 @@ def laplacian(img_input, coldepth):
     if coldepth != 24:
         img_input = img_input.convert("RGB")
 
-    # Empat kernel Laplacian
     laplacian_kernels = [
         [
             [0, 1, 0],
@@ -989,14 +985,9 @@ def laplacian(img_input, coldepth):
             [1, 1, 1],
         ],
         [
-            [0, -1, 0],
-            [-1, 4, -1],
-            [0, -1, 0],
-        ],
-        [
-            [-1, -1, -1],
-            [-1, 8, -1],
-            [-1, -1, -1],
+            [1, -2, 1],
+            [-2, 4, -2],
+            [1, -2, 1],
         ],
     ]
 
@@ -1008,7 +999,6 @@ def laplacian(img_input, coldepth):
         for j in range(1, height - 1):
             laplacian_total = 0
 
-            # Menggunakan semua kernel Laplacian
             for kernel in laplacian_kernels:
                 laplacian_value = 0
                 for m in range(3):
@@ -1033,12 +1023,13 @@ def laplacian(img_input, coldepth):
     return img_output
 
 
-def kompas(img_input, coldepth):
+from PIL import Image
 
+
+def kompas(img_input, coldepth):
     if coldepth != 24:
         img_input = img_input.convert("RGB")
 
-    # Kernel Kompas (8 arah)
     compass_kernels = [
         [
             [-1, -1, -1],
@@ -1049,7 +1040,7 @@ def kompas(img_input, coldepth):
             [-1, 0, 1],
             [-1, 0, 1],
             [-1, 0, 1],
-        ],  # North-East
+        ],  # North-East (modified)
         [
             [0, 1, 1],
             [-1, 0, 1],
@@ -1112,3 +1103,402 @@ def kompas(img_input, coldepth):
         img_output = img_output.convert("RGB")
 
     return img_output
+
+
+# Noise Graussian (scaling)
+def add_gaussian_noise(img_input, mean=0, std_dev=25, coldepth=24):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = img_input.copy()
+    pixels_output = img_output.load()
+
+    for i in range(img_output.size[0]):
+        for j in range(img_output.size[1]):
+            r, g, b = img_input.getpixel((i, j))
+
+            noise_r = int(random.gauss(mean, std_dev))
+            noise_g = int(random.gauss(mean, std_dev))
+            noise_b = int(random.gauss(mean, std_dev))
+
+            _r = max(0, min(255, r + noise_r))
+            _g = max(0, min(255, g + noise_g))
+            _b = max(0, min(255, b + noise_b))
+
+            pixels_output[i, j] = (_r, _g, _b)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# Noise Salt and pepper (scalling)
+# Salt
+def add_salt_noise(img_input, salt_prob=0.02, coldepth=24):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = img_input.copy()
+    pixels_output = img_output.load()
+    if img_output.mode == "L":  # Grayscale
+        for i in range(img_output.size[0]):
+            for j in range(img_output.size[1]):
+                if random.random() < salt_prob:
+                    pixels_output[i, j] = 255
+    else:
+        for i in range(img_output.size[0]):
+            for j in range(img_output.size[1]):
+                if random.random() < salt_prob:
+                    pixels_output[i, j] = (255, 255, 255)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# Pepper
+def add_pepper_noise(img_input, pepper_prob=0.02, coldepth=24):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = img_input.copy()
+    pixels_output = img_output.load()
+    if img_output.mode == "L":  # Grayscale
+        for i in range(img_output.size[0]):
+            for j in range(img_output.size[1]):
+                if random.random() < pepper_prob:
+                    pixels_output[i, j] = 0
+    else:  # RGB or other modes
+        for i in range(img_output.size[0]):
+            for j in range(img_output.size[1]):
+                if random.random() < pepper_prob:
+                    pixels_output[i, j] = (0, 0, 0)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# Salt and pepper
+def add_salt_and_pepper_noise(img_input, salt_prob=0.02, pepper_prob=0.02, coldepth=24):
+    if coldepth != 24:
+        img_input = img_input.convert("RGB")
+
+    img_output = img_input.copy()
+    pixels_output = img_output.load()
+    if img_output.mode == "L":  # Grayscale
+        for i in range(img_output.size[0]):
+            for j in range(img_output.size[1]):
+                rand_num = random.random()
+                if rand_num < salt_prob:
+                    pixels_output[i, j] = 255
+                elif rand_num < salt_prob + pepper_prob:
+                    pixels_output[i, j] = 0
+    else:  # RGB or other modes
+        for i in range(img_output.size[0]):
+            for j in range(img_output.size[1]):
+                rand_num = random.random()
+                if rand_num < salt_prob:
+                    pixels_output[i, j] = (255, 255, 255)
+                elif rand_num < salt_prob + pepper_prob:
+                    pixels_output[i, j] = (0, 0, 0)
+
+    if coldepth == 1:
+        img_output = img_output.convert("1")
+    elif coldepth == 8:
+        img_output = img_output.convert("L")
+    else:
+        img_output = img_output.convert("RGB")
+
+    return img_output
+
+
+# getfixel
+def get_pixel(img_input, x, y, default=0):
+    width, height = img_input.size
+    if x < 0 or y < 0 or x >= width or y >= height:
+        return default
+    return img_input.getpixel((x, y))
+
+
+# mean filter
+def mean_filter(img_input, kernel_size):
+    coldepth = img_input.mode
+    if coldepth != "RGB":
+        img_input = img_input.convert("RGB")
+
+    img_output = img_input.copy()
+    pixels_output = img_output.load()
+    offset = kernel_size // 2
+
+    for i in range(img_input.width):
+        for j in range(img_input.height):
+            mask = []
+            for k in range(-offset, offset + 1):
+                for l in range(-offset, offset + 1):
+                    mask.append(get_pixel(img_input, i + k, j + l, default=(0, 0, 0)))
+            pixels_output[i, j] = tuple(
+                int(sum(channel) / len(channel)) for channel in zip(*mask)
+            )
+
+    if coldepth == "1":
+        img_output = img_output.convert("1")
+    elif coldepth == "L":
+        img_output = img_output.convert("L")
+
+    return img_output
+
+
+# median filter
+def median_filter(img_input, kernel_size):
+    coldepth = img_input.mode
+    if coldepth != "RGB":
+        img_input = img_input.convert("RGB")
+
+    img_output = img_input.copy()
+    pixels_output = img_output.load()
+    offset = kernel_size // 2
+
+    for i in range(img_input.width):
+        for j in range(img_input.height):
+            mask = []
+            for k in range(-offset, offset + 1):
+                for l in range(-offset, offset + 1):
+                    mask.append(get_pixel(img_input, i + k, j + l, default=(0, 0, 0)))
+            pixels_output[i, j] = tuple(
+                int(np.median(channel)) for channel in zip(*mask)
+            )
+
+    if coldepth == "1":
+        img_output = img_output.convert("1")
+    elif coldepth == "L":
+        img_output = img_output.convert("L")
+
+    return img_output
+
+
+# Gaussian filter
+def gaussian_filter(img_input, kernel_size):
+    coldepth = img_input.mode
+    if coldepth != "RGB":
+        img_input = img_input.convert("RGB")
+
+    def gaussian(x, y, sigma=1.0):
+        return (1.0 / (2.0 * np.pi * sigma**2)) * np.exp(
+            -(x**2 + y**2) / (2 * sigma**2)
+        )
+
+    img_output = img_input.copy()
+    pixels_output = img_output.load()
+    offset = kernel_size // 2
+
+    # Create Gaussian kernel
+    kernel = np.zeros((kernel_size, kernel_size))
+    for x in range(-offset, offset + 1):
+        for y in range(-offset, offset + 1):
+            kernel[x + offset, y + offset] = gaussian(x, y)
+    kernel /= np.sum(kernel)
+
+    for i in range(img_input.width):
+        for j in range(img_input.height):
+            mask = []
+            for k in range(-offset, offset + 1):
+                for l in range(-offset, offset + 1):
+                    mask.append(get_pixel(img_input, i + k, j + l, default=(0, 0, 0)))
+            pixels_output[i, j] = tuple(
+                int(np.sum(np.array(channel) * kernel.flatten()))
+                for channel in zip(*mask)
+            )
+
+    if coldepth == "1":
+        img_output = img_output.convert("1")
+    elif coldepth == "L":
+        img_output = img_output.convert("L")
+
+    return img_output
+
+
+# loop 3x3 filter
+def loop_3x3_filter(img_input, filter_func, iterations):
+    img_output = img_input
+    for _ in range(iterations):
+        img_output = filter_func(img_output, 3)
+    return img_output
+
+
+# Fungsi Min Filter
+def min_filter(img_input):
+    coldepth = img_input.mode
+    if coldepth != "RGB":
+        img_input = img_input.convert("RGB")
+
+    width, height = img_input.size
+    pixels_input = img_input.load()
+    img_output = Image.new("RGB", (width, height))
+    pixels_output = img_output.load()
+
+    for i in range(1, width - 1):
+        for j in range(1, height - 1):
+            mask = [
+                img_input.getpixel((i - 1, j - 1)),
+                img_input.getpixel((i, j - 1)),
+                img_input.getpixel((i + 1, j - 1)),
+                img_input.getpixel((i - 1, j)),
+                img_input.getpixel((i, j)),
+                img_input.getpixel((i + 1, j)),
+                img_input.getpixel((i - 1, j + 1)),
+                img_input.getpixel((i, j + 1)),
+                img_input.getpixel((i + 1, j + 1)),
+            ]
+            min_r = min(mask, key=lambda x: x[0])[0]
+            min_g = min(mask, key=lambda x: x[1])[1]
+            min_b = min(mask, key=lambda x: x[2])[2]
+            pixels_output[i, j] = (min_r, min_g, min_b)
+
+    if coldepth == "1":
+        img_output = img_output.convert("1")
+    elif coldepth == "L":
+        img_output = img_output.convert("L")
+
+    return img_output
+
+
+# Fungsi Max Filter
+def max_filter(img_input):
+    coldepth = img_input.mode
+    if coldepth != "RGB":
+        img_input = img_input.convert("RGB")
+
+    width, height = img_input.size
+    pixels_input = img_input.load()
+    img_output = Image.new("RGB", (width, height))
+    pixels_output = img_output.load()
+
+    for i in range(1, width - 1):
+        for j in range(1, height - 1):
+            mask = [
+                img_input.getpixel((i - 1, j - 1)),
+                img_input.getpixel((i, j - 1)),
+                img_input.getpixel((i + 1, j - 1)),
+                img_input.getpixel((i - 1, j)),
+                img_input.getpixel((i, j)),
+                img_input.getpixel((i + 1, j)),
+                img_input.getpixel((i - 1, j + 1)),
+                img_input.getpixel((i, j + 1)),
+                img_input.getpixel((i + 1, j + 1)),
+            ]
+            max_r = max(mask, key=lambda x: x[0])[0]
+            max_g = max(mask, key=lambda x: x[1])[1]
+            max_b = max(mask, key=lambda x: x[2])[2]
+            pixels_output[i, j] = (max_r, max_g, max_b)
+
+    if coldepth == "1":
+        img_output = img_output.convert("1")
+    elif coldepth == "L":
+        img_output = img_output.convert("L")
+
+    return img_output
+
+
+# Fungsi Erosi
+def erosi(img_input):
+    return min_filter(img_input)
+
+
+# Fungsi Dilasi
+def dilasi(img_input):
+    return max_filter(img_input)
+
+
+# Fungsi Opening
+def opening(img_input):
+    eroded = erosi(img_input)
+    opened = dilasi(eroded)
+    return opened
+
+
+# Fungsi Closing
+def closing(img_input):
+    dilated = dilasi(img_input)
+    closed = erosi(dilated)
+    return closed
+
+
+# Fungsi White Top Hat
+def white_top_hat(img_input):
+    coldepth = img_input.mode
+    if coldepth != "RGB":
+        img_input = img_input.convert("RGB")
+
+    opened = opening(img_input)
+    pixels_input = img_input.load()
+    pixels_opened = opened.load()
+    img_output = Image.new(img_input.mode, img_input.size)
+    pixels_output = img_output.load()
+
+    for i in range(img_input.width):
+        for j in range(img_input.height):
+            if coldepth == "1" or coldepth == "L":
+                r = pixels_input[i, j]
+                ro = pixels_opened[i, j]
+                pixels_output[i, j] = max(0, r - ro)
+            else:
+                r, g, b = pixels_input[i, j]
+                ro, go, bo = pixels_opened[i, j]
+                pixels_output[i, j] = (max(0, r - ro), max(0, g - go), max(0, b - bo))
+
+    if coldepth == "1":
+        img_output = img_output.convert("1")
+    elif coldepth == "L":
+        img_output = img_output.convert("L")
+
+    return img_output
+
+
+# Fungsi Black Top Hat
+def black_top_hat(img_input):
+    coldepth = img_input.mode
+    if coldepth != "RGB":
+        img_input = img_input.convert("RGB")
+
+    closed = closing(img_input)
+    pixels_input = img_input.load()
+    pixels_closed = closed.load()
+    img_output = Image.new(img_input.mode, img_input.size)
+    pixels_output = img_output.load()
+
+    for i in range(img_input.width):
+        for j in range(img_input.height):
+            if coldepth == "1" or coldepth == "L":
+                r = pixels_input[i, j]
+                rc = pixels_closed[i, j]
+                pixels_output[i, j] = max(0, rc - r)
+            else:
+                r, g, b = pixels_input[i, j]
+                rc, gc, bc = pixels_closed[i, j]
+                pixels_output[i, j] = (max(0, rc - r), max(0, gc - g), max(0, bc - b))
+
+    if coldepth == "1":
+        img_output = img_output.convert("1")
+    elif coldepth == "L":
+        img_output = img_output.convert("L")
+
+    return img_output
+
+
+# sceletonisation

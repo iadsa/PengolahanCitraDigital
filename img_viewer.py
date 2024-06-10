@@ -1120,7 +1120,7 @@ while True:
                 "F": 32,
             }
 
-            window["ImgProcessingType"].update("sobel_gy")
+            window["ImgProcessingType"].update("sobel_gycl")
             img_input = Image.open(filename)
             coldepth = mode_to_coldepth[img_input.mode]
 
@@ -1588,3 +1588,559 @@ while True:
 
         except:
             pass
+
+    # noise
+
+    elif event in ["GaussianNoise", "SaltNoise", "PepperNoise", "SaltAndPepperNoise"]:
+        try:
+            window["FilepathImgInput"].update(filename)
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update(event)
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = img_input.copy()
+            if event == "GaussianNoise":
+                std_dev = values["GaussianNoise"]
+                img_output = add_gaussian_noise(img_output, mean=0, std_dev=std_dev)
+            elif event == "SaltNoise":
+                salt_prob = values["SaltNoise"] / 100.0
+                img_output = add_salt_noise(img_output, salt_prob=salt_prob)
+            elif event == "PepperNoise":
+                pepper_prob = values["PepperNoise"] / 100.0
+                img_output = add_pepper_noise(img_output, pepper_prob=pepper_prob)
+            elif event == "SaltAndPepperNoise":
+                salt_and_pepper_prob = values["SaltAndPepperNoise"] / 100.0
+                img_output = add_salt_and_pepper_noise(
+                    img_output,
+                    salt_prob=salt_and_pepper_prob,
+                    pepper_prob=salt_and_pepper_prob,
+                )
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except:
+            pass
+
+    if event in [
+        "median_3x3",
+        "median_5x5",
+        "median_7x7",
+        "median_9x9",
+        "median_loop_3x3",
+        "gaussian_3x3",
+        "gaussian_5x5",
+        "gaussian_7x7",
+        "gaussian_9x9",
+        "gaussian_loop_3x3",
+        "mean_3x3",
+        "mean_5x5",
+        "mean_7x7",
+        "mean_9x9",
+        "mean_loop_3x3",
+    ]:
+        try:
+            window["FilepathImgInput"].update(filename)
+            window["ImgInputViewer"].update(filename=filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            if event.startswith("median"):
+                if "3x3" in event:
+                    kernel_size = 3
+                elif "5x5" in event:
+                    kernel_size = 5
+                elif "7x7" in event:
+                    kernel_size = 7
+                elif "9x9" in event:
+                    kernel_size = 9
+                if "loop" in event:
+                    img_output = loop_3x3_filter(img_input, median_filter, 3)
+                else:
+                    img_output = median_filter(img_input, kernel_size)
+            elif event.startswith("gaussian"):
+                if "3x3" in event:
+                    kernel_size = 3
+                elif "5x5" in event:
+                    kernel_size = 5
+                elif "7x7" in event:
+                    kernel_size = 7
+                elif "9x9" in event:
+                    kernel_size = 9
+                if "loop" in event:
+                    img_output = loop_3x3_filter(img_input, gaussian_filter, 3)
+                else:
+                    img_output = gaussian_filter(img_input, kernel_size)
+            elif event.startswith("mean"):
+                if "3x3" in event:
+                    kernel_size = 3
+                elif "5x5" in event:
+                    kernel_size = 5
+                elif "7x7" in event:
+                    kernel_size = 7
+                elif "9x9" in event:
+                    kernel_size = 9
+                if "loop" in event:
+                    img_output = loop_3x3_filter(img_input, mean_filter, 3)
+                else:
+                    img_output = mean_filter(img_input, kernel_size)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(f"Image Size: {img_width} x {img_height}")
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                f"Output Image Size: {img_width_output} x {img_height_output}"
+            )
+
+            window["ImgColorDepth"].update(f"Color Depth: {coldepth}")
+            window["ImgColorDepth_output"].update(f"Output Color Depth: {coldepth}")
+
+        except Exception as e:
+            sg.popup_error(f"Error processing image: {e}")
+
+    elif event == "MaxFilter":
+        try:
+
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("MaxFilter")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = max_filter(img_input)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    elif event == "MinFilter":
+        try:
+
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("MinFilter")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = min_filter(img_input)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    elif event == "Erosi":
+        try:
+
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Erosi")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = erosi(img_input)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    elif event == "Dilasi":
+        try:
+
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Dilasi")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = dilasi(img_input)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    elif event == "White top hat":
+        try:
+
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("White top head")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = white_top_hat(img_input)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    elif event == "Black top head":
+        try:
+
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Black top head")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = black_top_hat(img_input)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    elif event == "Closing":
+        try:
+
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Closing")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = closing(img_input)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    elif event == "Opening":
+        try:
+
+            window["FilepathImgInput"].update(filename)
+
+            window["ImgInputViewer"].update(filename=filename)
+
+            window["ImgProcessingType"].update(filename)
+            window["ImgOutputViewer"].update(filename=filename)
+            img_input = Image.open(filename)
+            img_output = Image.open(filename)
+
+            mode_to_coldepth = {
+                "1": 1,
+                "L": 8,
+                "P": 8,
+                "RGB": 24,
+                "RGBA": 32,
+                "CMYK": 32,
+                "YCbCr": 24,
+                "LAB": 24,
+                "HSV": 24,
+                "I": 32,
+                "F": 32,
+            }
+
+            window["ImgProcessingType"].update("Opening")
+            img_input = Image.open(filename)
+            coldepth = mode_to_coldepth[img_input.mode]
+
+            img_output = opening(img_input)
+
+            img_output.save(filename_out)
+            window["ImgOutputViewer"].update(filename=filename_out)
+
+            img_width, img_height = img_input.size
+            window["ImgSize"].update(
+                "Image Size : " + str(img_width) + " x " + str(img_height)
+            )
+
+            img_width_output, img_height_output = img_output.size
+            window["ImgSize_output"].update(
+                "Image Size : " + str(img_width_output) + " x " + str(img_height_output)
+            )
+
+            window["ImgColorDepth_output"].update("Color Depth : " + str(coldepth))
+
+        except Exception as e:
+            print(f"Error: {e}")
